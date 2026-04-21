@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VCIS — Vendor Database</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0b0e1a;--sb:#0f1221;--sb-border:#1c2140;--card:#131729;--card2:#181d35;
+  --border:#1e2444;--border2:#252b4f;--text:#e8ecf8;--muted:#5a6490;--muted2:#7a85b0;
+  --blue:#4f7cff;--blue2:#3d6aff;--blue-dim:rgba(79,124,255,.12);
+  --green:#22c55e;--green-dim:rgba(34,197,94,.12);
+  --amber:#f59e0b;--amber-dim:rgba(245,158,11,.12);
+  --red:#ef4444;--red-dim:rgba(239,68,68,.12);
+  --purple:#a855f7;--purple-dim:rgba(168,85,247,.12);
+  --teal:#14b8a6;--font:'Sora',sans-serif;--mono:'DM Mono',monospace;
+}
+
+/* ── TOP BAR ── */
+.btn{padding:7px 14px;border-radius:6px;font-family:var(--font);font-size:12px;font-weight:500;cursor:pointer;border:none;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:var(--blue);color:#fff}.btn-primary:hover{background:var(--blue2)}
+.btn-outline{background:transparent;color:var(--text);border:1px solid var(--border2)}.btn-outline:hover{border-color:var(--blue);color:var(--blue)}
+.btn-sm{padding:4px 10px;font-size:11px;border-radius:5px}
+.btn-ghost{background:transparent;border:none;color:var(--muted2);cursor:pointer;padding:4px 8px;border-radius:4px;font-family:var(--font);font-size:11px}.btn-ghost:hover{color:var(--text);background:var(--card2)}
+.btn-icon{background:transparent;border:none;cursor:pointer;color:var(--muted2);padding:5px;border-radius:4px;display:inline-flex;align-items:center}.btn-icon:hover{color:var(--text);background:var(--card2)}
+
+/* ── FILTER BAR ── */
+.filter-bar{display:flex;align-items:center;gap:8px;padding:10px 24px;border-bottom:1px solid var(--border);background:var(--sb);flex-shrink:0;flex-wrap:wrap}
+.search-wrap{position:relative;flex:1;max-width:300px}
+.search-wrap svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+.search-input{width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);font-family:var(--font);font-size:12px;padding:7px 10px 7px 32px;border-radius:6px;outline:none;transition:border-color .15s}
+.search-input:focus{border-color:var(--blue)}
+.search-input::placeholder{color:var(--muted)}
+.filter-select{background:var(--bg);border:1px solid var(--border2);color:var(--text);font-family:var(--font);font-size:11px;padding:6px 10px;border-radius:6px;outline:none;cursor:pointer}
+.filter-select:focus{border-color:var(--blue)}
+.filter-count{font-size:11px;color:var(--muted2);margin-left:4px}
+.clear-btn{font-size:11px;color:var(--blue);cursor:pointer;background:none;border:none;font-family:var(--font)}.clear-btn:hover{text-decoration:underline}
+
+/* ── TABLE AREA ── */
+#table-area{flex:1;overflow:hidden;display:flex;flex-direction:column;position:relative}
+.tbl-scroll{flex:1;overflow-y:auto;overflow-x:auto}
+.tbl-scroll::-webkit-scrollbar{width:4px;height:4px}
+.tbl-scroll::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+table{width:100%;border-collapse:collapse;font-size:12px;min-width:1100px}
+thead th{position:sticky;top:0;background:#0e1120;color:var(--muted);text-align:left;padding:10px 12px;border-bottom:1px solid var(--border);font-weight:500;font-size:10px;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;cursor:pointer;user-select:none;z-index:10}
+thead th:hover{color:var(--text)}
+thead th.sort-asc::after{content:' ↑'}
+thead th.sort-desc::after{content:' ↓'}
+tbody tr{border-bottom:1px solid rgba(30,36,68,.7);transition:background .1s;cursor:pointer}
+tbody tr:hover{background:rgba(79,124,255,.05)}
+tbody tr.selected{background:rgba(79,124,255,.08)!important}
+td{padding:10px 12px;vertical-align:middle;white-space:nowrap;max-width:200px;overflow:hidden;text-overflow:ellipsis}
+.td-name{font-weight:600;color:var(--text)}
+.td-company{font-size:10px;color:var(--muted2);margin-top:1px}
+.td-date{font-size:12px}
+.td-days{font-size:10px;color:var(--muted2);margin-top:1px}
+.td-days.overdue{color:var(--red)}
+.td-days.critical{color:var(--red);font-weight:600}
+.td-days.expiring{color:var(--amber)}
+.actions-cell{display:flex;gap:4px;align-items:center}
+
+/* ── BADGES ── */
+.eff-dot{display:inline-block;width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dot-green{background:var(--green)}.dot-amber{background:var(--amber)}.dot-red{background:var(--red)}.dot-blue{background:var(--blue)}.dot-gray{background:var(--muted)}
+.score-badge{display:inline-block;width:28px;height:28px;border-radius:50%;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.score-red{background:var(--red-dim);color:var(--red);border:1px solid rgba(239,68,68,.25)}
+.score-amber{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(245,158,11,.25)}
+.score-green{background:var(--green-dim);color:var(--green);border:1px solid rgba(34,197,94,.25)}
+.score-gray{background:rgba(90,100,144,.15);color:var(--muted2);border:1px solid var(--border2)}
+.status-pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:500}
+.status-Active{background:var(--green-dim);color:var(--green)}
+.status-Critical{background:var(--red-dim);color:var(--red)}
+.status-Expired{background:rgba(90,100,144,.15);color:var(--muted2)}
+.status-Dormant{background:rgba(90,100,144,.15);color:var(--muted2)}
+.status-Expiring{background:var(--amber-dim);color:var(--amber)}
+.status-Renewal{background:var(--blue-dim);color:var(--blue)}
+.status-Negotiation{background:var(--amber-dim);color:var(--amber)}
+
+/* ── PAGINATION ── */
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:10px 24px;border-top:1px solid var(--border);flex-shrink:0;background:var(--sb)}
+.page-info{font-size:11px;color:var(--muted2)}
+.page-btns{display:flex;gap:4px}
+.page-btn{width:30px;height:28px;border-radius:5px;background:var(--card);border:1px solid var(--border2);color:var(--muted2);font-family:var(--mono);font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.page-btn:hover{border-color:var(--blue);color:var(--blue)}
+.page-btn.active{background:var(--blue);border-color:var(--blue);color:#fff}
+
+/* ── DETAIL PANEL ── */
+.panel-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;opacity:0;pointer-events:none;transition:opacity .2s}
+.panel-overlay.open{opacity:1;pointer-events:all}
+.detail-panel{position:fixed;right:0;top:0;width:460px;height:100vh;background:var(--sb);border-left:1px solid var(--border2);z-index:101;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;display:flex;flex-direction:column}
+.detail-panel.open{transform:translateX(0)}
+.detail-panel::-webkit-scrollbar{width:3px}
+.detail-panel::-webkit-scrollbar-thumb{background:var(--border2)}
+.dp-head{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:10px;flex-shrink:0}
+.dp-info{flex:1;min-width:0}
+.dp-name{font-size:16px;font-weight:700;letter-spacing:-.3px;margin-bottom:3px}
+.dp-company{font-size:11px;color:var(--muted2);margin-bottom:8px}
+.dp-badges{display:flex;gap:6px;flex-wrap:wrap}
+.dp-close{background:var(--card2);border:1px solid var(--border2);color:var(--muted2);cursor:pointer;width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.dp-close:hover{color:var(--text);border-color:var(--border)}
+.dp-actions{padding:12px 18px;border-bottom:1px solid var(--border);display:flex;gap:6px;flex-wrap:wrap;flex-shrink:0}
+.dp-body{flex:1;overflow-y:auto;padding:0}
+.dp-body::-webkit-scrollbar{width:3px}
+.dp-section{border-bottom:1px solid var(--border)}
+.dp-sec-head{display:flex;align-items:center;justify-content:space-between;padding:12px 18px 10px;cursor:pointer}
+.dp-sec-title{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted2)}
+.dp-sec-toggle{color:var(--muted);font-size:11px;transition:transform .15s}
+.dp-sec-body{padding:4px 18px 14px;display:grid;grid-template-columns:130px 1fr;gap:3px 12px}
+.dp-label{font-size:10px;color:var(--muted2);padding:3px 0;align-self:center}
+.dp-value{font-size:11px;color:var(--text);padding:3px 0;word-break:break-word;white-space:normal}
+.dp-value.empty{color:var(--muted);font-style:italic}
+.dp-value.highlight{color:var(--amber);font-weight:500}
+.dp-value.danger{color:var(--red);font-weight:500}
+.dp-value.success{color:var(--green)}
+.notes-block{padding:0 18px 14px}
+.notes-entry{margin-bottom:8px;padding:8px 10px;background:var(--card2);border-radius:6px;border-left:2px solid var(--border2)}
+.note-date{font-size:10px;color:var(--red);font-family:var(--mono);margin-bottom:3px;font-weight:500}
+.note-text{font-size:11px;color:var(--muted2);line-height:1.5}
+.add-note-area{padding:0 18px 14px}
+.add-note-input{width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);font-family:var(--font);font-size:11px;padding:8px 10px;border-radius:6px;outline:none;resize:vertical;min-height:64px}
+.add-note-input:focus{border-color:var(--blue)}
+
+/* ── IMPORT MODAL ── */
+#modal-wrap{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;display:none;align-items:center;justify-content:center}
+#modal-wrap.open{display:flex}
+.modal{background:var(--card);border:1px solid var(--border2);border-radius:12px;width:480px;max-height:85vh;overflow-y:auto}
+.modal-head{padding:20px 22px 16px;border-bottom:1px solid var(--border)}
+.modal-title{font-size:15px;font-weight:600;margin-bottom:3px}
+.modal-sub{font-size:11px;color:var(--muted2)}
+.modal-body{padding:20px 22px}
+.modal-foot{padding:14px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
+.drop-zone{border:1.5px dashed var(--border2);border-radius:10px;padding:32px;text-align:center;cursor:pointer;transition:border-color .15s;margin-bottom:16px}
+.drop-zone:hover,.drop-zone.over{border-color:var(--blue);background:var(--blue-dim)}
+.drop-icon{font-size:28px;margin-bottom:8px}
+.drop-text{font-size:13px;font-weight:500;margin-bottom:4px}
+.drop-sub{font-size:11px;color:var(--muted2)}
+.sheet-check{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--card2);border-radius:6px;margin-bottom:6px;font-size:12px}
+.check-icon{font-size:14px}
+.progress-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:12px}
+.progress-fill{height:100%;background:var(--blue);border-radius:3px;transition:width .3s}
+.import-summary{background:var(--card2);border-radius:8px;padding:12px;font-size:12px;display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.sum-row{display:flex;justify-content:space-between}
+.sum-label{color:var(--muted2)}
+.sum-val{font-weight:600;font-family:var(--mono)}
+.sum-val.green{color:var(--green)}.sum-val.amber{color:var(--amber)}.sum-val.red{color:var(--red)}
+
+/* ── LOG NOTE MODAL ── */
+.modal-field{margin-bottom:14px}
+.modal-field label{display:block;font-size:10px;color:var(--muted2);margin-bottom:5px;font-weight:500;letter-spacing:.03em;text-transform:uppercase}
+.modal-input{width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);font-family:var(--font);font-size:12px;padding:9px 11px;border-radius:7px;outline:none;transition:border-color .15s}
+.modal-input:focus{border-color:var(--blue)}
+.modal-textarea{width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);font-family:var(--font);font-size:12px;padding:9px 11px;border-radius:7px;outline:none;resize:vertical;min-height:90px;transition:border-color .15s}
+.modal-textarea:focus{border-color:var(--blue)}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:24px;right:24px;padding:10px 18px;border-radius:8px;font-size:12px;color:#fff;opacity:0;transform:translateY(8px);transition:all .2s;pointer-events:none;z-index:999;font-weight:500}
+#toast.show{opacity:1;transform:translateY(0)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.anim{animation:fadeUp .2s ease both}
+
+/* ── VCIS SHARED SIDEBAR ─────────────────────────────────────── */
+</style>
+</head>
+<body>
+
+
+
+
+</div>
+
+<!-- FILTER BAR -->
+<div class="filter-bar">
+  <div class="search-wrap">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input class="search-input" id="search" placeholder="Search vendors, category, contract #..." oninput="applyFilters()">
+  </div>
+  <select class="filter-select" id="f-status" onchange="applyFilters()">
+    <option value="">All Statuses</option>
+    <option>Active</option><option>Expiring Soon</option><option>Critical</option>
+    <option>In Renewal</option><option>Expired</option><option>Dormant</option>
+  </select>
+  <select class="filter-select" id="f-category" onchange="applyFilters()">
+    <option value="">All Categories</option>
+    <option>Healthcare</option><option>IT</option><option>Logistics</option>
+    <option>HR Tech</option><option>Facilities</option>
+  </select>
+  <select class="filter-select" id="f-tier" onchange="applyFilters()">
+    <option value="">All Tiers</option>
+    <option>Gold</option><option>Silver</option><option>Bronze</option>
+  </select>
+  <select class="filter-select" id="f-badge" onchange="applyFilters()">
+    <option value="">All Effectivity</option>
+    <option value="green">Green (Active)</option>
+    <option value="amber">Amber (Expiring)</option>
+    <option value="red">Red (Critical)</option>
+    <option value="blue">Blue (In Renewal)</option>
+    <option value="gray">Gray (Expired)</option>
+  </select>
+  <span class="filter-count" id="filter-count"></span>
+  <button class="clear-btn" id="clear-btn" style="display:none" onclick="clearFilters()">✕ Clear</button>
+</div>
+
+<!-- TABLE AREA -->
+<div id="table-area">
+  <div class="tbl-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:40px" title="Effectivity"></th>
+          <th style="width:60px" onclick="sortBy('score')">Score</th>
+          <th onclick="sortBy('name')">Vendor</th>
+          <th onclick="sortBy('category')">Category</th>
+          <th onclick="sortBy('expiry')">Contract Expiry</th>
+          <th>Notice Deadline</th>
+          <th onclick="sortBy('adminFee')">Admin Fee</th>
+          <th onclick="sortBy('status')">Status</th>
+          <th onclick="sortBy('lastComm')">Last Contact</th>
+          <th onclick="sortBy('followUp')">Follow-up Due</th>
+          <th style="width:100px">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+  <div class="pagination">
+    <span class="page-info" id="page-info">Showing 1–6 of 6 vendors</span>
+    <div class="page-btns">
+      <button class="page-btn">‹</button>
+      <button class="page-btn active">1</button>
+      <button class="page-btn">›</button>
+    </div>
+  </div>
+</div>
+
+<!-- PANEL OVERLAY -->
+<div class="panel-overlay" id="overlay" onclick="closePanel()"></div>
+
+<!-- DETAIL PANEL -->
+<div class="detail-panel" id="detail-panel">
+  <div class="dp-head">
+    <div class="dp-info">
+      <div class="dp-name" id="dp-name">—</div>
+      <div class="dp-company" id="dp-company">—</div>
+      <div class="dp-badges" id="dp-badges"></div>
+    </div>
+    <button class="dp-close" onclick="closePanel()">✕</button>
+  </div>
+  <div class="dp-actions">
+    <button class="btn btn-primary btn-sm" onclick="toast('Opening addendum upload...','#4f7cff')">↑ Upload Addendum</button>
+    <button class="btn btn-outline btn-sm" onclick="openLogNote()">📝 Log Note</button>
+    <button class="btn btn-outline btn-sm" onclick="toast('Opening calendar...','#4f7cff')">📅 Schedule</button>
+    <button class="btn btn-outline btn-sm" onclick="toast('Edit mode active','#f59e0b')">✏️ Edit</button>
+  </div>
+  <div class="dp-body" id="dp-body"></div>
+</div>
+
+<!-- IMPORT MODAL -->
+<div id="modal-wrap">
+  <div class="modal" id="import-modal">
+    <div class="modal-head">
+      <div class="modal-title" id="import-title">Import Excel File</div>
+      <div class="modal-sub" id="import-sub">Upload your Vendor_Catalogue.xlsm or .xlsx to import vendor records</div>
+    </div>
+    <div class="modal-body" id="import-body">
+      <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-inp').click()" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="handleDrop(event)">
+        <div class="drop-icon">📂</div>
+        <div class="drop-text">Drop your Excel file here</div>
+        <div class="drop-sub">Supports .xlsm and .xlsx — Vendor_Catalogue format</div>
+      </div>
+      <input type="file" id="file-inp" accept=".xlsm,.xlsx" style="display:none" onchange="handleFileSelect(this)">
+      <div style="font-size:11px;color:var(--muted2);margin-top:8px">
+        <strong style="color:var(--text)">Expected sheets:</strong> Prime Source Direct · In the works · Reviews
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline btn-sm" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary btn-sm" id="import-next-btn" style="display:none" onclick="runImport()">Begin Import</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOG NOTE MODAL -->
+<div id="note-modal-wrap" style="position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;display:none;align-items:center;justify-content:center">
+  <div class="modal" style="width:420px">
+    <div class="modal-head">
+      <div class="modal-title">Log Note</div>
+      <div class="modal-sub" id="note-modal-vendor">for vendor</div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-field">
+        <label>Channel</label>
+        <select class="modal-input" id="note-channel">
+          <option>Call</option><option>Email</option><option>Meeting</option><option>Internal</option>
+        </select>
+      </div>
+      <div class="modal-field">
+        <label>Follow-up Date</label>
+        <input type="date" class="modal-input" id="note-followup">
+      </div>
+      <div class="modal-field">
+        <label>Note</label>
+        <textarea class="modal-textarea" id="note-text" placeholder="e.g. Called John. Wants pricing breakdown. Follow up in 2 weeks..."></textarea>
+      </div>
+    </div>
+    <div class="modal-foot" style="border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;padding:14px 22px">
+      <button class="btn btn-outline btn-sm" onclick="closeNoteModal()">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="saveNote()">Save Note</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+'use strict';
+
+const VENDORS = [
+  { id:'v1', name:'Acme Medical Supply', company:'Acme Corp Ltd', category:'Healthcare', tier:'Gold', adminFee:'8%', adminFeeNum:8, expiry:'2026-04-29', effectiveDate:'2023-04-29', autoRenew:'Yes', autoRenewType:'Automatic 1-year renewal', terminationNotice:'60 days', contractTerm:'3 years', currentTerm:'Year 3', status:'Active', score:9, badge:'red', lastComm:'2026-04-07', followUp:'2026-04-21', procContact:'John Mitchell', title:'VP Procurement', email:'jm@acme.com', bizPhone:'(212) 555-0101', mobile:'(212) 555-9101', contractNo:'HC-2023-041', agreementType:'Master Agreement', contractName:'Healthcare Supply Master Contract', gpo:'Premier', markets:'Northeast, Southeast', classOfTrade:'Acute Care', exclusivity:'Non-exclusive', assignment:'Permitted with consent', perpetuity:'None', tail:'6 months', website:'acmecorp.com', about:'Leading healthcare supply distributor with 20+ years of GPO experience. Specializes in surgical and diagnostic supplies.', completeness:88, notes:'2026-04-07: Called John. Contract renewal discussion. He confirmed they want to extend for another 3 years. Will send proposal by April 21.|2026-03-01: Quarterly review call. Performance metrics all green. Admin fee increase discussion deferred to renewal.', shared2:'Linda Ortega', title2:'Contract Manager', mobile2:'(212) 555-9202', email2:'lo@acme.com' },
+  { id:'v2', name:'TechStart Solutions', company:'TechStart Inc', category:'IT', tier:'Silver', adminFee:'5%', adminFeeNum:5, expiry:'2026-06-15', effectiveDate:'2024-06-15', autoRenew:'No', terminationNotice:'30 days', contractTerm:'2 years', currentTerm:'Year 2', status:'Expiring Soon', score:7, badge:'amber', lastComm:'2026-04-03', followUp:'2026-04-18', procContact:'Sarah Chen', title:'Director of Partnerships', email:'sc@techstart.com', bizPhone:'(415) 555-0202', mobile:'(415) 555-9202', contractNo:'IT-2024-062', agreementType:'Service Agreement', contractName:'IT Services Contract', gpo:'', markets:'National', classOfTrade:'Technology', exclusivity:'Exclusive — Midwest', assignment:'Not permitted', perpetuity:'None', tail:'None', website:'techstart.com', about:'Cloud infrastructure and managed services provider. Recently expanded to include AI-based analytics tools.', completeness:74, notes:'2026-04-03: Email exchange with Sarah. She confirmed they are open to renewal discussions. Rate increase expected.|2026-02-15: Annual performance review. SLA compliance: 98.7%. Minor issues with onboarding documentation.', shared2:'', title2:'', mobile2:'', email2:'' },
+  { id:'v3', name:'GrowFast Logistics', company:'GrowFast Corp', category:'Logistics', tier:'Bronze', adminFee:'3%', adminFeeNum:3, expiry:'2027-01-10', effectiveDate:'2025-01-10', autoRenew:'Yes', autoRenewType:'Annual auto-renewal unless cancelled 90 days prior', terminationNotice:'90 days', contractTerm:'2 years', currentTerm:'Year 1', status:'Active', score:4, badge:'green', lastComm:'2026-03-26', followUp:'2026-05-10', procContact:'Mark Reyes', title:'Account Manager', email:'mr@growfast.com', bizPhone:'(312) 555-0303', mobile:'(312) 555-9303', contractNo:'LG-2025-013', agreementType:'Logistics Services Agreement', contractName:'National Logistics Framework', gpo:'', markets:'Midwest, West Coast', classOfTrade:'Logistics & Distribution', exclusivity:'Non-exclusive', assignment:'Permitted', perpetuity:'None', tail:'3 months', website:'growfast.com', about:'Mid-size logistics company specializing in last-mile delivery and warehouse management.', completeness:61, notes:'2026-03-26: Routine check-in. No issues. Mark mentioned they are expanding to East Coast.', shared2:'', title2:'', mobile2:'', email2:'' },
+  { id:'v4', name:'BrightHR Systems', company:'BrightHR Pty Ltd', category:'HR Tech', tier:'Gold', adminFee:'6%', adminFeeNum:6, expiry:'2026-05-05', effectiveDate:'2024-05-05', autoRenew:'No', terminationNotice:'45 days', contractTerm:'2 years', currentTerm:'Year 2', status:'Critical', score:10, badge:'red', lastComm:'2026-04-09', followUp:'2026-04-14', procContact:'Anna Cruz', title:'Chief Revenue Officer', email:'ac@brighthr.com', bizPhone:'(646) 555-0404', mobile:'(646) 555-9404', contractNo:'HR-2024-055', agreementType:'Software License Agreement', contractName:'HR Platform Enterprise License', gpo:'', markets:'National', classOfTrade:'Human Resources Technology', exclusivity:'Exclusive — HR category', assignment:'Not permitted without written consent', perpetuity:'Data rights in perpetuity', tail:'12 months post-termination', website:'brighthr.com', about:'Enterprise HR platform providing payroll, benefits, and talent management. Preferred vendor for HR technology across all business units.', completeness:92, notes:'2026-04-09: URGENT — Anna confirmed contract has NO auto-renew. Notice window was 45 days — deadline was March 21. We are past the notice deadline. Escalated to legal team.|2026-03-01: Review meeting. Very satisfied with platform. Expecting renewal proposal.', shared2:'James Wu', title2:'Legal Counsel', mobile2:'(646) 555-9505', email2:'jw@brighthr.com' },
+  { id:'v5', name:'NovaCo Facilities', company:'NovaCo Ltd', category:'Facilities', tier:'Silver', adminFee:'4%', adminFeeNum:4, expiry:'2025-12-31', effectiveDate:'2023-12-31', autoRenew:'No', terminationNotice:'60 days', contractTerm:'2 years', currentTerm:'Expired', status:'Expired', score:3, badge:'gray', lastComm:'2026-02-28', followUp:'2026-04-01', procContact:'Tom Park', title:'Sales Director', email:'tp@novaco.com', bizPhone:'(213) 555-0505', mobile:'', contractNo:'FC-2023-128', agreementType:'Facilities Management Agreement', contractName:'Building Services Contract', gpo:'', markets:'West Coast', classOfTrade:'Facilities Management', exclusivity:'Non-exclusive', assignment:'Permitted', perpetuity:'None', tail:'None', website:'novaco.com', about:'Comprehensive facilities management including maintenance, cleaning, and security services.', completeness:45, notes:'2026-02-28: Tom mentioned they are waiting for our renewal decision. Contract expired Dec 31.', shared2:'', title2:'', mobile2:'', email2:'' },
+  { id:'v6', name:'Vertex Pharmaceuticals', company:'Vertex Pharma', category:'Healthcare', tier:'Gold', adminFee:'10%', adminFeeNum:10, expiry:'2026-08-20', effectiveDate:'2024-08-20', autoRenew:'Yes', autoRenewType:'2-year automatic renewal', terminationNotice:'90 days', contractTerm:'2 years', currentTerm:'Year 2', status:'In Renewal', score:6, badge:'blue', lastComm:'2026-04-10', followUp:'2026-04-25', procContact:'Diana Wells', title:'VP National Accounts', email:'dw@vertex.com', bizPhone:'(617) 555-0606', mobile:'(617) 555-9606', contractNo:'HC-2024-088', agreementType:'Distribution Agreement', contractName:'Pharmaceutical Distribution Contract', gpo:'Vizient', markets:'National', classOfTrade:'Pharmaceuticals', exclusivity:'Exclusive — Oncology category', assignment:'Not permitted', perpetuity:'IP rights in perpetuity', tail:'18 months', website:'vrtx.com', about:'Major pharmaceutical company. High-value contract with exclusive oncology distribution rights. Strategic partner for 5+ years.', completeness:83, notes:'2026-04-10: Diana confirmed renewal terms agreed in principle. Legal review in progress. Addendum expected within 30 days.|2026-03-15: Renewal kickoff meeting. Both parties interested in extending terms.', shared2:'Robert Finn', title2:'Contract Administrator', mobile2:'(617) 555-9707', email2:'rf@vertex.com' },
+];
+
+let filtered = [...VENDORS];
+let sortCol = 'score', sortDir = -1;
+let selectedVendor = null;
+
+// ── Render Table ─────────────────────────────────────────────────────────────
+function renderTable() {
+  const tbody = document.getElementById('tbody');
+  tbody.innerHTML = '';
+  filtered.forEach(v => {
+    const tr = document.createElement('tr');
+    if (selectedVendor && selectedVendor.id === v.id) tr.classList.add('selected');
+    tr.onclick = () => openPanel(v);
+
+    const days = daysTo(v.expiry);
+    const daysLabel = days < 0 ? `<span class="td-days overdue">Expired ${Math.abs(days)}d ago</span>`
+      : days <= 7 ? `<span class="td-days critical">${days} days — CRITICAL</span>`
+      : days <= 30 ? `<span class="td-days expiring">${days} days</span>`
+      : `<span class="td-days">${days} days</span>`;
+
+    const noticeDays = calcNoticeDays(v);
+    const noticeDate = noticeDays !== null ? addDays(v.expiry, -noticeDays) : null;
+    const noticeLabel = noticeDate ? `<div class="td-date">${fmtDate(noticeDate)}</div><div class="td-days" style="color:var(--muted2)">Must notify by</div>` : '<span style="color:var(--muted)">—</span>';
+
+    const scoreClass = v.score >= 8 ? 'score-red' : v.score >= 5 ? 'score-amber' : v.score >= 1 ? 'score-green' : 'score-gray';
+    const dotClass = {green:'dot-green',amber:'dot-amber',red:'dot-red',blue:'dot-blue',gray:'dot-gray'}[v.badge]||'dot-gray';
+    const statusKey = v.status.replace(' ','').replace('ExpiringS','Expiring');
+
+    const followDays = daysTo(v.followUp);
+    const fuLabel = !v.followUp ? '—' : followDays < 0 ? `<div class="td-date" style="color:var(--red)">${fmtDate(v.followUp)}</div><div class="td-days overdue">Overdue ${Math.abs(followDays)}d</div>`
+      : `<div class="td-date">${fmtDate(v.followUp)}</div><div class="td-days">${followDays}d</div>`;
+
+    tr.innerHTML = `
+      <td><span class="eff-dot ${dotClass}"></span></td>
+      <td><div class="score-badge ${scoreClass}">${v.score}</div></td>
+      <td><div class="td-name">${v.name}</div><div class="td-company">${v.company}</div></td>
+      <td>${v.category}</td>
+      <td><div class="td-date">${fmtDate(v.expiry)}</div>${daysLabel}</td>
+      <td>${noticeLabel}</td>
+      <td style="font-family:var(--mono)">${v.adminFee}</td>
+      <td><span class="status-pill status-${statusKey}">${v.status}</span></td>
+      <td>${v.lastComm ? `<div class="td-date">${fmtDate(v.lastComm)}</div><div class="td-days">${Math.abs(daysTo(v.lastComm))}d ago</div>` : '—'}</td>
+      <td>${fuLabel}</td>
+      <td onclick="event.stopPropagation()">
+        <div class="actions-cell">
+          <button class="btn-icon" title="View" onclick="openPanel(VENDORS.find(x=>x.id==='${v.id}'))"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+          <button class="btn-icon" title="Upload Addendum" onclick="toast('Upload addendum for ${v.name}','#a855f7')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></button>
+          <button class="btn-icon" title="Log Note" onclick="openLogNote(VENDORS.find(x=>x.id==='${v.id}'))"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+        </div>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('vendor-count').textContent = VENDORS.length + ' vendors total';
+  document.getElementById('page-info').textContent = `Showing 1–${filtered.length} of ${filtered.length} vendors`;
+}
+
+// ── Filters ───────────────────────────────────────────────────────────────────
+function applyFilters() {
+  const q = document.getElementById('search').value.toLowerCase();
+  const st = document.getElementById('f-status').value;
+  const cat = document.getElementById('f-category').value;
+  const tier = document.getElementById('f-tier').value;
+  const badge = document.getElementById('f-badge').value;
+  const hasFilter = q||st||cat||tier||badge;
+  document.getElementById('clear-btn').style.display = hasFilter ? 'inline' : 'none';
+
+  filtered = VENDORS.filter(v => {
+    if (q && !`${v.name} ${v.company} ${v.category} ${v.contractNo} ${v.procContact}`.toLowerCase().includes(q)) return false;
+    if (st && v.status !== st) return false;
+    if (cat && v.category !== cat) return false;
+    if (tier && v.tier !== tier) return false;
+    if (badge && v.badge !== badge) return false;
+    return true;
+  });
+  sortAndRender();
+  const fc = document.getElementById('filter-count');
+  fc.textContent = hasFilter ? `${filtered.length} result${filtered.length!==1?'s':''}` : '';
+}
+function clearFilters() {
+  document.getElementById('search').value='';
+  ['f-status','f-category','f-tier','f-badge'].forEach(id=>document.getElementById(id).value='');
+  applyFilters();
+}
+
+// ── Sort ─────────────────────────────────────────────────────────────────────
+function sortBy(col) {
+  if (sortCol === col) sortDir *= -1;
+  else { sortCol = col; sortDir = -1; }
+  document.querySelectorAll('thead th').forEach(th => { th.classList.remove('sort-asc','sort-desc'); });
+  sortAndRender();
+}
+function sortAndRender() {
+  filtered.sort((a,b) => {
+    let av = a[sortCol]||'', bv = b[sortCol]||'';
+    if (sortCol === 'score') return (b.score - a.score) * sortDir;
+    if (sortCol === 'adminFee') return (b.adminFeeNum - a.adminFeeNum) * sortDir;
+    return String(av).localeCompare(String(bv)) * sortDir;
+  });
+  renderTable();
+}
+
+// ── Detail Panel ──────────────────────────────────────────────────────────────
+function openPanel(v) {
+  if (!v) return;
+  selectedVendor = v;
+  document.getElementById('dp-name').textContent = v.name;
+  document.getElementById('dp-company').textContent = v.company;
+  const dotClass = {green:'dot-green',amber:'dot-amber',red:'dot-red',blue:'dot-blue',gray:'dot-gray'}[v.badge]||'dot-gray';
+  const scoreClass = v.score >= 8 ? 'score-red' : v.score >= 5 ? 'score-amber' : 'score-green';
+  const statusKey = v.status.replace(' ','').replace('ExpiringS','Expiring');
+  document.getElementById('dp-badges').innerHTML = `
+    <span class="eff-dot ${dotClass}" style="width:10px;height:10px;margin-right:2px"></span>
+    <div class="score-badge ${scoreClass}" style="width:24px;height:24px;font-size:11px">${v.score}</div>
+    <span class="status-pill status-${statusKey}">${v.status}</span>
+    <span class="status-pill" style="background:rgba(90,100,144,.15);color:var(--muted2)">${v.tier}</span>`;
+
+  const body = document.getElementById('dp-body');
+  const days = daysTo(v.expiry);
+  const daysTxt = days < 0 ? `<span style="color:var(--red)">Expired ${Math.abs(days)} days ago</span>` : days <= 7 ? `<span style="color:var(--red)">${days} days — CRITICAL</span>` : days <= 30 ? `<span style="color:var(--amber)">${days} days</span>` : `${days} days`;
+
+  body.innerHTML = '';
+  const sections = [
+    { title:'Contract Overview', fields:[
+      ['Contract Number', v.contractNo],['Agreement Type', v.agreementType],
+      ['Contract Name', v.contractName],['In Contract Since', v.effectiveDate?fmtDate(v.effectiveDate):''],
+      ['Effective Date', v.effectiveDate?fmtDate(v.effectiveDate):''],
+      ['Expiry Date', v.expiry?`${fmtDate(v.expiry)} (${daysTxt})`:'', days<=30&&days>=0?'highlight':days<0?'danger':''],
+      ['Contract Term', v.contractTerm],['Current Term', v.currentTerm],['Status', v.status],
+    ]},
+    { title:'Renewal & Termination', fields:[
+      ['Auto-Renew', v.autoRenew],['Auto-Renew Type', v.autoRenewType],
+      ['Termination Notice', v.terminationNotice],
+      ['Notice Deadline', v.terminationNotice&&v.expiry?fmtDate(addDays(v.expiry,-calcNoticeDays(v))):''],
+      ['Perpetuity', v.perpetuity],['Tail Clause', v.tail],
+    ]},
+    { title:'Financial', fields:[
+      ['Admin Fee', v.adminFee,'highlight'],['Admin Fee Notes', v.adminFeeNotes||''],
+      ['Tiers', v.tiers||''],['GPO', v.gpo||''],
+    ]},
+    { title:'Procurement Contact', fields:[
+      ['Contact Name', v.procContact],['Title', v.title],
+      ['Business Phone', v.bizPhone],['Mobile', v.mobile],['Email', v.email],
+      ['Contact 2', v.shared2],['Title 2', v.title2],['Mobile 2', v.mobile2],['Email 2', v.email2],
+    ]},
+    { title:'Vendor Info', fields:[
+      ['Category', v.category],['Sub-Category', v.subCategory||''],
+      ['Product', v.product||''],['Class of Trade', v.classOfTrade],
+      ['Markets', v.markets],['Website', v.website],
+      ['Assignment', v.assignment],['Exclusivity', v.exclusivity],
+    ]},
+  ];
+
+  sections.forEach(sec => {
+    const secEl = div('dp-section');
+    const head = div('dp-sec-head');
+    head.innerHTML = `<span class="dp-sec-title">${sec.title}</span><span class="dp-sec-toggle">▾</span>`;
+    head.onclick = () => {
+      const b = secEl.querySelector('.dp-sec-body');
+      const tog = secEl.querySelector('.dp-sec-toggle');
+      b.style.display = b.style.display === 'none' ? 'grid' : 'none';
+      tog.style.transform = b.style.display === 'none' ? 'rotate(-90deg)' : '';
+    };
+    secEl.appendChild(head);
+    const sbody = div('dp-sec-body');
+    sec.fields.forEach(([lbl, val, cls]) => {
+      const l = div('dp-label'); l.textContent = lbl;
+      const vEl = div('dp-value' + (cls?' '+cls:'') + (!val?' empty':''));
+      vEl.textContent = val || '— not set —';
+      sbody.appendChild(l); sbody.appendChild(vEl);
+    });
+    secEl.appendChild(sbody);
+    body.appendChild(secEl);
+  });
+
+  // About
+  if (v.about) {
+    const sec = div('dp-section');
+    sec.innerHTML = `<div class="dp-sec-head"><span class="dp-sec-title">About</span></div><div style="padding:4px 18px 14px;font-size:11px;color:var(--muted2);line-height:1.6">${v.about}</div>`;
+    body.appendChild(sec);
+  }
+
+  // Notes
+  const notesSec = div('dp-section');
+  notesSec.innerHTML = `<div class="dp-sec-head" style="cursor:default"><span class="dp-sec-title">Notes History</span></div>`;
+  const notesBlock = div('notes-block');
+  if (v.notes) {
+    v.notes.split('|').forEach(entry => {
+      const trimmed = entry.trim();
+      if (!trimmed) return;
+      const dateMatch = trimmed.match(/^(\d{4}-\d{2}-\d{2}):\s*(.*)/s);
+      const noteDiv = div('notes-entry');
+      if (dateMatch) {
+        noteDiv.innerHTML = `<div class="note-date">${fmtDate(dateMatch[1])}</div><div class="note-text">${dateMatch[2]}</div>`;
+      } else {
+        noteDiv.innerHTML = `<div class="note-text">${trimmed}</div>`;
+      }
+      notesBlock.appendChild(noteDiv);
+    });
+  } else {
+    notesBlock.innerHTML = '<div class="note-text" style="color:var(--muted)">No notes yet.</div>';
+  }
+  notesSec.appendChild(notesBlock);
+  const addNoteArea = div('add-note-area');
+  addNoteArea.innerHTML = `<button class="btn btn-outline btn-sm" style="width:100%;justify-content:center" onclick="openLogNote(selectedVendor)">+ Add Note</button>`;
+  notesSec.appendChild(addNoteArea);
+  body.appendChild(notesSec);
+
+  document.getElementById('overlay').classList.add('open');
+  document.getElementById('detail-panel').classList.add('open');
+  renderTable();
+}
+
+function closePanel() {
+  selectedVendor = null;
+  document.getElementById('overlay').classList.remove('open');
+  document.getElementById('detail-panel').classList.remove('open');
+  renderTable();
+}
+
+// ── Log Note ─────────────────────────────────────────────────────────────────
+let noteTargetVendor = null;
+function openLogNote(v) {
+  noteTargetVendor = v || selectedVendor;
+  if (!noteTargetVendor) return;
+  document.getElementById('note-modal-vendor').textContent = 'for ' + noteTargetVendor.name;
+  const fu = new Date(); fu.setDate(fu.getDate()+14);
+  document.getElementById('note-followup').value = fu.toISOString().split('T')[0];
+  document.getElementById('note-text').value = '';
+  document.getElementById('note-modal-wrap').style.display = 'flex';
+}
+function closeNoteModal() { document.getElementById('note-modal-wrap').style.display = 'none'; }
+function saveNote() {
+  const text = document.getElementById('note-text').value.trim();
+  if (!text) { toast('Please enter a note','#ef4444'); return; }
+  const today = new Date().toISOString().split('T')[0];
+  const entry = `${today}: ${document.getElementById('note-channel').value} — ${text}`;
+  if (noteTargetVendor) {
+    noteTargetVendor.notes = noteTargetVendor.notes ? entry + '|' + noteTargetVendor.notes : entry;
+    noteTargetVendor.lastComm = today;
+    const fu = document.getElementById('note-followup').value;
+    if (fu) noteTargetVendor.followUp = fu;
+  }
+  closeNoteModal();
+  toast('Note saved and logged to audit','#22c55e');
+  if (selectedVendor && noteTargetVendor && selectedVendor.id === noteTargetVendor.id) openPanel(noteTargetVendor);
+  else renderTable();
+}
+
+// ── Import Modal ──────────────────────────────────────────────────────────────
+let importStep = 1;
+function openImport() {
+  importStep = 1;
+  document.getElementById('import-title').textContent = 'Import Excel File';
+  document.getElementById('import-sub').textContent = 'Upload your Vendor_Catalogue.xlsm or .xlsx';
+  document.getElementById('import-body').innerHTML = `
+    <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-inp').click()">
+      <div class="drop-icon">📂</div><div class="drop-text">Drop your Excel file here</div>
+      <div class="drop-sub">Supports .xlsm and .xlsx</div>
+    </div>
+    <input type="file" id="file-inp" accept=".xlsm,.xlsx" style="display:none" onchange="handleFileSelect(this)">`;
+  document.getElementById('import-next-btn').style.display = 'none';
+  document.getElementById('modal-wrap').classList.add('open');
+}
+function handleFileSelect(inp) {
+  const f = inp.files[0];
+  if (!f) return;
+  document.getElementById('import-title').textContent = 'Verify Sheets';
+  document.getElementById('import-sub').textContent = `File: ${f.name} (${(f.size/1024).toFixed(1)} KB)`;
+  document.getElementById('import-body').innerHTML = `
+    <p style="font-size:12px;color:var(--muted2);margin-bottom:14px">The following sheets were detected:</p>
+    <div class="sheet-check"><span class="check-icon">✅</span><span>Prime Source Direct <span style="color:var(--muted2);font-size:10px">— ${VENDORS.length} vendor rows found</span></span></div>
+    <div class="sheet-check"><span class="check-icon">✅</span><span>In the works <span style="color:var(--muted2);font-size:10px">— 3 pipeline rows found</span></span></div>
+    <div class="sheet-check"><span class="check-icon">✅</span><span>Reviews <span style="color:var(--muted2);font-size:10px">— 4 review rows found</span></span></div>
+    <p style="font-size:11px;color:var(--muted2);margin-top:14px">All sheets found. Click <strong style="color:var(--text)">Begin Import</strong> to proceed.</p>`;
+  document.getElementById('import-next-btn').style.display = 'inline-flex';
+}
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('drop-zone').classList.remove('over');
+  const f = e.dataTransfer.files[0];
+  if (f) handleFileSelect({ files:[f] });
+}
+function runImport() {
+  document.getElementById('import-title').textContent = 'Importing...';
+  document.getElementById('import-sub').textContent = 'Please wait while records are processed';
+  document.getElementById('import-next-btn').style.display = 'none';
+  let prog = 0;
+  document.getElementById('import-body').innerHTML = `
+    <p class="import-progress-label" style="font-size:12px;color:var(--muted2);margin-bottom:10px" id="prog-label">Importing... 0 of ${VENDORS.length} records</p>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>`;
+  const interval = setInterval(() => {
+    prog = Math.min(prog + Math.floor(Math.random()*2)+1, VENDORS.length);
+    const pct = Math.round((prog/VENDORS.length)*100);
+    document.getElementById('prog-fill').style.width = pct+'%';
+    document.getElementById('prog-label').textContent = `Importing... ${prog} of ${VENDORS.length} records`;
+    if (prog >= VENDORS.length) {
+      clearInterval(interval);
+      setTimeout(() => {
+        document.getElementById('import-title').textContent = 'Import Complete';
+        document.getElementById('import-sub').textContent = 'All records have been processed';
+        document.getElementById('import-body').innerHTML = `
+          <div class="import-summary">
+            <div class="sum-row"><span class="sum-label">Records created</span><span class="sum-val green">${VENDORS.length}</span></div>
+            <div class="sum-row"><span class="sum-label">Records updated</span><span class="sum-val">0</span></div>
+            <div class="sum-row"><span class="sum-label">Rows skipped</span><span class="sum-val amber">2</span></div>
+            <div class="sum-row"><span class="sum-label">Data issues found</span><span class="sum-val red">7</span></div>
+            <div class="sum-row"><span class="sum-label">ITW records</span><span class="sum-val green">3</span></div>
+            <div class="sum-row"><span class="sum-label">Review records</span><span class="sum-val green">4</span></div>
+          </div>
+          <p style="font-size:11px;color:var(--amber);margin-top:12px">⚠ 7 data quality issues found. <span style="color:var(--blue);cursor:pointer" onclick="closeModal();toast('Opening Data Check','#f59e0b')">View in Data Check →</span></p>`;
+        document.getElementById('import-next-btn').style.display = 'inline-flex';
+        document.getElementById('import-next-btn').textContent = 'Done';
+        document.getElementById('import-next-btn').onclick = closeModal;
+      }, 400);
+    }
+  }, 120);
+}
+function openAddVendor() { toast('Add Vendor form — coming in full integration','#4f7cff'); }
+function openExport() { toast('Exporting filtered view as .xlsx...','#22c55e'); }
+function closeModal() { document.getElementById('modal-wrap').classList.remove('open'); }
+document.getElementById('modal-wrap').addEventListener('click', e => { if (e.target.id==='modal-wrap') closeModal(); });
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function daysTo(dateStr) {
+  if (!dateStr) return 9999;
+  return Math.round((new Date(dateStr+' 12:00') - new Date()) / 86400000);
+}
+function fmtDate(s) {
+  if (!s) return '';
+  const d = new Date(s+'T12:00:00');
+  return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+}
+function addDays(dateStr, days) {
+  const d = new Date(dateStr+'T12:00:00');
+  d.setDate(d.getDate()+days);
+  return d.toISOString().split('T')[0];
+}
+function calcNoticeDays(v) {
+  if (!v.terminationNotice) return null;
+  const m = String(v.terminationNotice).match(/(\d+)\s*(day|month|year)/i);
+  if (!m) return null;
+  const n = parseInt(m[1]);
+  const u = m[2].toLowerCase();
+  return u.startsWith('d') ? n : u.startsWith('m') ? n*30 : n*365;
+}
+function div(cls, tag='div') { const e=document.createElement(tag); if(cls)e.className=cls; return e; }
+function toast(msg, color='#4f7cff') {
+  const t=document.getElementById('toast'); t.textContent=msg; t.style.background=color;
+  t.classList.add('show'); clearTimeout(t._tid); t._tid=setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+applyFilters();
+</script>
+
+<script src="../shared/groq.js"></script>
+<script src="../shared/nav.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    VCISNav.init({ page: 'vendors', title: 'Vendor Database', sub: '' });
+  VCISNav.addTopBarActions(`<button class="btn btn-outline btn-sm" onclick="openExport()">↓ Export</button>
+<button class="btn btn-outline btn-sm" onclick="openImport()">↑ Import Excel</button>
+<button class="btn btn-primary btn-sm" onclick="openAddVendor()">+ Add Vendor</button>`);
+  });
+</script>
+</body>
+</html>

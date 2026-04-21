@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VCIS — History & Audit Log</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0b0e1a;--sb:#0f1221;--card:#131729;--card2:#181d35;--border:#1e2444;--border2:#252b4f;--text:#e8ecf8;--muted:#5a6490;--muted2:#7a85b0;--blue:#4f7cff;--blue-dim:rgba(79,124,255,.12);--green:#22c55e;--green-dim:rgba(34,197,94,.12);--amber:#f59e0b;--amber-dim:rgba(245,158,11,.12);--red:#ef4444;--red-dim:rgba(239,68,68,.12);--purple:#a855f7;--purple-dim:rgba(168,85,247,.12);--teal:#14b8a6;--teal-dim:rgba(20,184,166,.12);--font:'Sora',sans-serif;--mono:'DM Mono',monospace;}
+.div{width:1px;height:20px;background:var(--border2);margin:0 4px}
+.btn{padding:6px 12px;border-radius:5px;font-family:var(--font);font-size:11px;cursor:pointer;border:1px solid var(--border2);background:transparent;color:var(--text);transition:all .15s;display:inline-flex;align-items:center;gap:5px}.btn:hover{border-color:var(--blue);color:var(--blue)}
+.btn-primary{background:var(--blue);border-color:var(--blue);color:#fff}.btn-primary:hover{background:#3d6aff}
+.immutable-banner{background:rgba(239,68,68,.06);border-bottom:1px solid rgba(239,68,68,.15);padding:8px 24px;font-size:11px;color:var(--muted2);display:flex;align-items:center;gap:8px;flex-shrink:0}
+.immutable-icon{color:var(--red);font-size:13px}
+.filter-bar{display:flex;align-items:center;gap:8px;padding:10px 24px;border-bottom:1px solid var(--border);background:var(--sb);flex-shrink:0;flex-wrap:wrap}
+.search-wrap{position:relative;flex:1;max-width:240px}
+.search-wrap svg{position:absolute;left:8px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+.search-inp{width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);font-family:var(--font);font-size:11px;padding:6px 10px 6px 28px;border-radius:5px;outline:none}.search-inp:focus{border-color:var(--blue)}.search-inp::placeholder{color:var(--muted)}
+.filter-sel{background:var(--bg);border:1px solid var(--border2);color:var(--text);font-family:var(--font);font-size:11px;padding:5px 9px;border-radius:5px;outline:none;cursor:pointer}
+.filter-count{font-size:11px;color:var(--muted2);margin-left:4px}
+.clear-btn{font-size:11px;color:var(--blue);cursor:pointer;background:none;border:none;font-family:var(--font)}.clear-btn:hover{text-decoration:underline}
+#table-area{flex:1;overflow-y:auto}
+#table-area::-webkit-scrollbar{width:4px}
+#table-area::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+table{width:100%;border-collapse:collapse;font-size:11px;min-width:1000px}
+thead th{position:sticky;top:0;background:#0e1120;color:var(--muted);text-align:left;padding:9px 12px;border-bottom:1px solid var(--border);font-weight:500;font-size:10px;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;z-index:5}
+tbody tr{border-bottom:1px solid rgba(30,36,68,.6);transition:background .1s;cursor:pointer}
+tbody tr:hover{background:rgba(79,124,255,.04)}
+tbody tr.expanded-row{background:rgba(79,124,255,.05)}
+td{padding:9px 12px;vertical-align:middle;white-space:nowrap}
+.td-time{font-family:var(--mono);font-size:10px;color:var(--muted2)}
+.td-user{display:flex;align-items:center;gap:7px}
+.user-avatar{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;flex-shrink:0}
+.user-name{font-size:11px}
+.role-tag{font-size:9px;padding:1px 5px;border-radius:3px;background:var(--card2);color:var(--muted2);margin-left:3px}
+.action-pill{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:500;white-space:nowrap}
+.ap-import{background:var(--blue-dim);color:var(--blue)}.ap-create{background:var(--green-dim);color:var(--green)}.ap-update{background:var(--amber-dim);color:var(--amber)}.ap-addendum{background:var(--purple-dim);color:var(--purple)}.ap-ai{background:var(--purple-dim);color:var(--purple)}.ap-human{background:var(--teal-dim);color:var(--teal)}.ap-note{background:rgba(90,100,144,.15);color:var(--muted2)}.ap-score{background:rgba(90,100,144,.15);color:var(--muted2)}.ap-cal{background:var(--blue-dim);color:var(--blue)}.ap-delete{background:var(--red-dim);color:var(--red)}.ap-login{background:rgba(90,100,144,.1);color:var(--muted)}
+.td-vendor{max-width:160px;overflow:hidden;text-overflow:ellipsis;color:var(--text)}
+.td-field{font-family:var(--mono);font-size:10px;color:var(--muted2)}
+.td-val-old{color:var(--red);font-size:10px;font-family:var(--mono)}.td-val-new{color:var(--green);font-size:10px;font-family:var(--mono)}
+.triggered-badge{font-size:9px;padding:2px 7px;border-radius:10px;font-weight:500}
+.tb-human{background:var(--blue-dim);color:var(--blue)}.tb-ai{background:var(--purple-dim);color:var(--purple)}.tb-auto{background:var(--amber-dim);color:var(--amber)}
+.expand-btn{background:none;border:none;cursor:pointer;color:var(--muted);font-size:11px;padding:2px 4px;border-radius:3px}.expand-btn:hover{color:var(--text)}
+.detail-row{background:rgba(79,124,255,.03)}
+.detail-row td{padding:0}
+.detail-inner{padding:12px 16px 14px 48px;font-size:11px;color:var(--muted2);display:grid;grid-template-columns:140px 1fr 140px 1fr;gap:5px 12px}
+.dl{font-weight:500;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.05em}.dv{color:var(--text);word-break:break-word;white-space:normal}
+.dv.mono{font-family:var(--mono);font-size:10px}
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:9px 24px;border-top:1px solid var(--border);flex-shrink:0;background:var(--sb)}
+.page-info{font-size:11px;color:var(--muted2)}
+.page-btns{display:flex;gap:4px}
+.page-btn{width:28px;height:26px;border-radius:4px;background:var(--card);border:1px solid var(--border2);color:var(--muted2);font-family:var(--mono);font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center}.page-btn:hover{border-color:var(--blue);color:var(--blue)}.page-btn.active{background:var(--blue);border-color:var(--blue);color:#fff}
+#toast{position:fixed;bottom:24px;right:24px;padding:10px 18px;border-radius:8px;font-size:12px;color:#fff;opacity:0;transform:translateY(8px);transition:all .2s;pointer-events:none;z-index:9999;font-weight:500}
+#toast.show{opacity:1;transform:translateY(0)}
+
+/* ── VCIS SHARED SIDEBAR ─────────────────────────────────────── */
+</style>
+</head>
+<body>
+
+
+<div class="top-bar">
+  <span class="top-logo">VCIS</span><div class="div"></div>
+  <span class="top-title">History & Audit Log</span>
+  <span class="top-sub">— immutable action record</span>
+  <div class="top-right"><button class="btn btn-primary" onclick="toast('Exporting audit log as CSV...','#22c55e')">&#8595; Export CSV</button></div>
+</div>
+<div class="immutable-banner">
+  <span class="immutable-icon">&#128274;</span>
+  This log is immutable — entries cannot be edited or deleted. Every system action is recorded permanently.
+</div>
+<div class="filter-bar">
+  <div class="search-wrap">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input class="search-inp" id="search" placeholder="Search vendor, user, action..." oninput="renderLog()">
+  </div>
+  <select class="filter-sel" id="f-action" onchange="renderLog()">
+    <option value="">All Actions</option>
+    <option>Import</option><option>Create</option><option>Update</option><option>Addendum Upload</option>
+    <option>AI Analysis</option><option>Human Decision</option><option>Note Logged</option>
+    <option>Score Recalculated</option><option>Calendar Event Created</option><option>Delete</option><option>Login</option>
+  </select>
+  <select class="filter-sel" id="f-triggered" onchange="renderLog()">
+    <option value="">All Sources</option>
+    <option>Human</option><option>AI</option><option>Automation</option>
+  </select>
+  <select class="filter-sel" id="f-user" onchange="renderLog()">
+    <option value="">All Users</option>
+    <option>Jane Doe</option><option>Mike Torres</option><option>Sara Kim</option><option>System</option>
+  </select>
+  <span class="filter-count" id="filter-count"></span>
+  <button class="clear-btn" id="clear-btn" style="display:none" onclick="clearFilters()">&#10005; Clear</button>
+</div>
+<div id="table-area">
+  <table>
+    <thead>
+      <tr>
+        <th></th>
+        <th>Timestamp</th>
+        <th>User</th>
+        <th>Action</th>
+        <th>Vendor / Record</th>
+        <th>Field Changed</th>
+        <th>Old Value</th>
+        <th>New Value</th>
+        <th>Source</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+</div>
+<div class="pagination">
+  <span class="page-info" id="page-info">Showing all entries</span>
+  <div class="page-btns">
+    <button class="page-btn">&#8249;</button>
+    <button class="page-btn active">1</button>
+    <button class="page-btn">2</button>
+    <button class="page-btn">&#8250;</button>
+  </div>
+</div>
+<div id="toast"></div>
+<script>
+const USERS = {
+  'Jane Doe':{initials:'JD',color:'#4f7cff',role:'Admin'},
+  'Mike Torres':{initials:'MT',color:'#22c55e',role:'Manager'},
+  'Sara Kim':{initials:'SK',color:'#a855f7',role:'Manager'},
+  'System':{initials:'SY',color:'#f59e0b',role:'System'},
+};
+const ACTION_CLASSES = {
+  'Import':'ap-import','Create':'ap-create','Update':'ap-update',
+  'Addendum Upload':'ap-addendum','AI Analysis':'ap-ai','Human Decision':'ap-human',
+  'Note Logged':'ap-note','Score Recalculated':'ap-score',
+  'Calendar Event Created':'ap-cal','Delete':'ap-delete','Login':'ap-login','Export':'ap-note',
+};
+const now = new Date(2026,3,20,14,32,0);
+function ts(minsAgo){const d=new Date(now-minsAgo*60000);return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+' '+d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});}
+const LOGS = [
+  {id:'l1',time:ts(8),user:'Jane Doe',action:'Addendum Upload',vendor:'BrightHR Systems',field:'',oldVal:'',newVal:'',triggered:'Human',sessionId:'sess-001',ip:'192.168.1.42',notes:'Addendum file: BrightHR_Addendum_2026.pdf uploaded for AI comparison',aiPrompt:'You are an expert contract analyst...',aiResponse:'{"vendor_name":"BrightHR Systems","addendum_summary":"This addendum extends...'},
+  {id:'l2',time:ts(9),user:'Jane Doe',action:'AI Analysis',vendor:'BrightHR Systems',field:'',oldVal:'',newVal:'',triggered:'AI',notes:'AI comparison generated — 6 changes detected, 3 risks flagged. Confidence: 87%',aiPrompt:'You are an expert contract analyst...',aiResponse:'{"vendor_name":"BrightHR Systems","overall_recommendation":"accept_with_edits"...'},
+  {id:'l3',time:ts(10),user:'Jane Doe',action:'Human Decision',vendor:'BrightHR Systems',field:'expiry',oldVal:'May 5, 2026',newVal:'May 5, 2028',triggered:'Human',notes:'Accepted AI proposal — contract extension approved. Admin fee negotiated to 7.5%.'},
+  {id:'l4',time:ts(10),user:'Jane Doe',action:'Update',vendor:'BrightHR Systems',field:'adminFee',oldVal:'6%',newVal:'7.5%',triggered:'Human',notes:'Custom value entered during addendum review'},
+  {id:'l5',time:ts(10),user:'Jane Doe',action:'Update',vendor:'BrightHR Systems',field:'autoRenew',oldVal:'No',newVal:'Yes',triggered:'Human',notes:'Accepted AI proposed change'},
+  {id:'l6',time:ts(10),user:'Jane Doe',action:'Calendar Event Created',vendor:'BrightHR Systems',field:'',oldVal:'',newVal:'BrightHR Auto-Renew Deadline — Mar 5, 2028',triggered:'AI',notes:'Suggested by AI based on new expiry date'},
+  {id:'l7',time:ts(15),user:'Jane Doe',action:'Score Recalculated',vendor:'BrightHR Systems',field:'priority_score',oldVal:'10',newVal:'5',triggered:'Automation',notes:'Score reduced after contract extension — urgency reduced'},
+  {id:'l8',time:ts(95),user:'Mike Torres',action:'Note Logged',vendor:'Acme Medical Supply',field:'notes',oldVal:'',newVal:'Apr 20: Call — Discussed renewal terms with John Mitchell...',triggered:'Human',notes:'Channel: Call'},
+  {id:'l9',time:ts(180),user:'System',action:'Score Recalculated',vendor:'All Vendors',field:'priority_score',oldVal:'(various)',newVal:'(various)',triggered:'Automation',notes:'Daily 7am recalculation — all 6 vendor scores refreshed'},
+  {id:'l10',time:ts(240),user:'System',action:'Calendar Event Created',vendor:'BrightHR Systems',field:'',oldVal:'',newVal:'URGENT: Contract Expires Soon — May 5, 2026',triggered:'Automation',notes:'Auto-generated: vendor crossed 7-day expiry threshold'},
+  {id:'l11',time:ts(300),user:'Mike Torres',action:'Human Decision',vendor:'TechStart Solutions',field:'expiry',oldVal:'Jun 15, 2026',newVal:'Jun 15, 2026',triggered:'Human',notes:'Previous addendum review — no change to expiry, kept current'},
+  {id:'l12',time:ts(1440),user:'Sara Kim',action:'Import',vendor:'Batch — 6 records',field:'',oldVal:'',newVal:'6 vendors created, 2 ITW, 4 reviews',triggered:'Human',notes:'File: Vendor_Catalogue_Apr2026.xlsm — all sheets found'},
+  {id:'l13',time:ts(1441),user:'System',action:'Score Recalculated',vendor:'All Vendors',field:'priority_score',oldVal:'—',newVal:'Scores assigned on import',triggered:'Automation',notes:'Initial scoring after batch import'},
+  {id:'l14',time:ts(1500),user:'Mike Torres',action:'Update',vendor:'GrowFast Logistics',field:'followUp',oldVal:'Mar 26, 2026',newVal:'May 10, 2026',triggered:'Human',notes:'Follow-up rescheduled after call'},
+  {id:'l15',time:ts(1560),user:'System',action:'Calendar Event Created',vendor:'NovaCo Facilities',field:'',oldVal:'',newVal:'Stale Record Alert — expired Dec 31',triggered:'Automation',notes:'Auto-flagged: expired 1yr+ ago with no recent communication'},
+  {id:'l16',time:ts(2880),user:'Jane Doe',action:'Login',vendor:'—',field:'',oldVal:'',newVal:'',triggered:'Human',notes:'Logged in from IP 192.168.1.42'},
+  {id:'l17',time:ts(2881),user:'Jane Doe',action:'Export',vendor:'Vendor Database',field:'',oldVal:'',newVal:'6 records exported',triggered:'Human',notes:'Exported filtered vendor list as .xlsx'},
+];
+let expandedId=null;
+function renderLog(){
+  const q=document.getElementById('search').value.toLowerCase();
+  const fa=document.getElementById('f-action').value;
+  const ft=document.getElementById('f-triggered').value;
+  const fu=document.getElementById('f-user').value;
+  const hasFilter=q||fa||ft||fu;
+  document.getElementById('clear-btn').style.display=hasFilter?'inline':'none';
+  const filtered=LOGS.filter(l=>{
+    if(q&&!(l.vendor+l.user+l.action+l.field+l.notes).toLowerCase().includes(q))return false;
+    if(fa&&l.action!==fa)return false;
+    if(ft&&l.triggered!==ft)return false;
+    if(fu&&l.user!==fu)return false;
+    return true;
+  });
+  document.getElementById('filter-count').textContent=hasFilter?filtered.length+' result'+(filtered.length!==1?'s':''):'';
+  document.getElementById('page-info').textContent='Showing 1–'+filtered.length+' of '+LOGS.length+' entries';
+  const tbody=document.getElementById('tbody');tbody.innerHTML='';
+  filtered.forEach(l=>{
+    const u=USERS[l.user]||{initials:'??',color:'#5a6490',role:'Unknown'};
+    const ac=ACTION_CLASSES[l.action]||'ap-note';
+    const tc={Human:'tb-human',AI:'tb-ai',Automation:'tb-auto'}[l.triggered]||'tb-human';
+    const tr=document.createElement('tr');if(expandedId===l.id)tr.classList.add('expanded-row');
+    tr.onclick=()=>toggleExpand(l.id);
+    tr.innerHTML='<td><button class="expand-btn">'+(expandedId===l.id?'&#9660;':'&#9658;')+'</button></td>'+
+      '<td class="td-time">'+l.time+'</td>'+
+      '<td><div class="td-user"><div class="user-avatar" style="background:'+u.color+'22;color:'+u.color+'">'+u.initials+'</div><div><div class="user-name">'+l.user+'<span class="role-tag">'+u.role+'</span></div></div></div></td>'+
+      '<td><span class="action-pill '+ac+'">'+l.action+'</span></td>'+
+      '<td class="td-vendor">'+l.vendor+'</td>'+
+      '<td class="td-field">'+(l.field||'—')+'</td>'+
+      '<td class="td-val-old">'+(l.oldVal||'—')+'</td>'+
+      '<td class="td-val-new">'+(l.newVal||'—')+'</td>'+
+      '<td><span class="triggered-badge '+tc+'">'+l.triggered+'</span></td>';
+    tbody.appendChild(tr);
+    if(expandedId===l.id){
+      const dr=document.createElement('tr');dr.className='detail-row';
+      const dtd=document.createElement('td');dtd.colSpan=9;
+      dtd.innerHTML='<div class="detail-inner">'+
+        '<div class="dl">Session ID</div><div class="dv mono">'+(l.sessionId||'sess-auto')+'</div>'+
+        '<div class="dl">IP Address</div><div class="dv mono">'+(l.ip||'Internal')+'</div>'+
+        '<div class="dl">Notes</div><div class="dv" style="grid-column:2/5">'+l.notes+'</div>'+
+        (l.aiPrompt?'<div class="dl">AI Prompt Used</div><div class="dv mono" style="grid-column:2/5;max-height:60px;overflow:hidden;text-overflow:ellipsis">'+l.aiPrompt.slice(0,200)+'...</div>':'')+
+        (l.aiResponse?'<div class="dl">AI Response</div><div class="dv mono" style="grid-column:2/5;max-height:60px;overflow:hidden">'+l.aiResponse.slice(0,200)+'...</div>':'')+
+        '</div>';
+      dr.appendChild(dtd);tbody.appendChild(dr);
+    }
+  });
+}
+function toggleExpand(id){expandedId=expandedId===id?null:id;renderLog();}
+function clearFilters(){document.getElementById('search').value='';['f-action','f-triggered','f-user'].forEach(id=>document.getElementById(id).value='');renderLog();}
+function toast(msg,color='#4f7cff'){const t=document.getElementById('toast');t.textContent=msg;t.style.background=color;t.classList.add('show');clearTimeout(t._tid);t._tid=setTimeout(()=>t.classList.remove('show'),2600);}
+renderLog();
+</script>
+
+<script src="../shared/groq.js"></script>
+<script src="../shared/nav.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    VCISNav.init({ page: 'history', title: 'History & Audit', sub: '' });
+  });
+</script>
+</body>
+</html>
