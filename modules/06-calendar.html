@@ -168,22 +168,7 @@ body{margin-left:220px !important}
 const TODAY = new Date(2026,3,20);
 let viewYear=2026,viewMonth=3,currentView='month',selectedEvent=null;
 
-const EVENTS = [
-  {id:'e1',title:'Acme Contract Expiry Warning',date:'2026-04-29',type:'expiry',vendor:'Acme Medical Supply',time:'All day',notes:'Contract expires. Renewal proposal must be submitted.',status:'Scheduled',auto:true},
-  {id:'e2',title:'BrightHR — URGENT: Contract Expires Soon',date:'2026-05-05',type:'expiry',vendor:'BrightHR Systems',time:'All day',notes:'Critical expiry. Notice deadline already passed.',status:'Scheduled',auto:true},
-  {id:'e3',title:'Notice Deadline — BrightHR Systems',date:'2026-03-21',type:'notice',vendor:'BrightHR Systems',time:'All day',notes:'MISSED — 45-day notice window has passed.',status:'Overdue',auto:true},
-  {id:'e4',title:'Call with Anna Cruz',date:'2026-04-21',type:'call',vendor:'BrightHR Systems',time:'10:00 AM',notes:'Follow-up on addendum terms. Bring proposal document.',status:'Scheduled',auto:false},
-  {id:'e5',title:'Addendum Review — Vertex Pharma',date:'2026-04-22',type:'addendum',vendor:'Vertex Pharmaceuticals',time:'2:00 PM',notes:'Review renewal addendum with legal team.',status:'Scheduled',auto:false},
-  {id:'e6',title:'Follow-up — TechStart Solutions',date:'2026-04-18',type:'followup',vendor:'TechStart Solutions',time:'11:00 AM',notes:'Initiate renewal conversation with Sarah Chen.',status:'Completed',auto:false},
-  {id:'e7',title:'Acme Annual Review',date:'2026-04-21',type:'review',vendor:'Acme Medical Supply',time:'3:00 PM',notes:'Annual performance review and contract renewal discussion.',status:'Scheduled',auto:false},
-  {id:'e8',title:'Pricing Sheet Deadline — MediCare Direct',date:'2026-04-30',type:'review',vendor:'MediCare Direct (ITW)',time:'5:00 PM',notes:'Deadline to send pricing sheet to prospect.',status:'Scheduled',auto:true},
-  {id:'e9',title:'TechStart Expiry Warning',date:'2026-06-15',type:'expiry',vendor:'TechStart Solutions',time:'All day',notes:'Contract expires Jun 15. No auto-renew.',status:'Scheduled',auto:true},
-  {id:'e10',title:'Renewal Planning — Acme Medical',date:'2026-01-29',type:'review',vendor:'Acme Medical Supply',time:'All day',notes:'90-day renewal planning trigger.',status:'Completed',auto:true},
-  {id:'e11',title:'Deep work block',date:'2026-04-22',type:'block',vendor:null,time:'9:00 AM – 12:00 PM',notes:'Focus time — no meetings.',status:'Scheduled',auto:false},
-  {id:'e12',title:'Vertex Renewal Meeting',date:'2026-05-02',type:'call',vendor:'Vertex Pharmaceuticals',time:'1:00 PM',notes:'Renewal strategy meeting — terms negotiation.',status:'Scheduled',auto:false},
-  {id:'e13',title:'Follow-up — Acme Medical Supply',date:'2026-04-25',type:'followup',vendor:'Acme Medical Supply',time:'All day',notes:'Follow-up due — contract renewal discussion.',status:'Scheduled',auto:true},
-  {id:'e14',title:'GrowFast Q1 Review',date:'2026-05-10',type:'review',vendor:'GrowFast Logistics',time:'2:00 PM',notes:'Quarterly performance review.',status:'Scheduled',auto:false},
-];
+const EVENTS = [];
 
 const TYPE_COLORS = {call:'ev-blue',expiry:'ev-amber',notice:'ev-red',addendum:'ev-purple',followup:'ev-teal',review:'ev-green',block:'ev-gray'};
 const TYPE_LABELS = {call:'Contact Call',expiry:'Contract Expiry',notice:'Notice Deadline',addendum:'Addendum Review',followup:'Follow-up',review:'Review Meeting',block:'Personal Block'};
