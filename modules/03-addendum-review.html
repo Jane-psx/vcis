@@ -258,10 +258,7 @@ body{margin-left:220px !important}
   <div class="vendor-select-bar">
     <span style="font-size:11px;color:var(--muted2)">Reviewing:</span>
     <select class="vendor-select" id="vendor-select" onchange="switchVendor()">
-      <option value="v1">Acme Medical Supply</option>
-      <option value="v4" selected>BrightHR Systems ⚠</option>
-      <option value="v2">TechStart Solutions</option>
-      <option value="v6">Vertex Pharmaceuticals</option>
+      <option value="">— Select Vendor —</option>
     </select>
   </div>
 </div>
@@ -270,7 +267,7 @@ body{margin-left:220px !important}
   <!-- LEFT COL — always shows current vendor data -->
   <div class="left-col">
     <div class="col-head">
-      <div class="col-title" id="left-title">Current Record — BrightHR Systems</div>
+      <div class="col-title" id="left-title">Current Record</div>
       <div class="col-sub">All fields as currently stored in the system</div>
     </div>
     <div class="field-grid" id="field-grid"><!-- filled by JS --></div>
@@ -285,47 +282,36 @@ body{margin-left:220px !important}
 <script>
 'use strict';
 
-const VENDORS = {
-  v1:{ name:'Acme Medical Supply', company:'Acme Corp Ltd', category:'Healthcare', tier:'Gold', contractNo:'HC-2023-041', agreementType:'Master Agreement', effectiveDate:'Apr 29, 2023', expiry:'Apr 29, 2026', daysToExpiry:9, autoRenew:'Yes', autoRenewType:'Automatic 1-year renewal', terminationNotice:'60 days', contractTerm:'3 years', currentTerm:'Year 3', adminFee:'8%', adminFeeNotes:'Applied to all contracted products', tiers:'Gold: 8%, Silver: 6%', gpo:'Premier', exclusivity:'Non-exclusive', assignment:'Permitted with written consent', perpetuity:'None', tail:'6 months', markets:'Northeast, Southeast', classOfTrade:'Acute Care', website:'acmecorp.com', procContact:'John Mitchell', title:'VP Procurement', bizPhone:'(212) 555-0101', mobile:'(212) 555-9101', email:'jm@acme.com', shared2:'Linda Ortega', title2:'Contract Manager', mobile2:'(212) 555-9202', email2:'lo@acme.com', lastComm:'Apr 7, 2026', followUp:'Apr 21, 2026', status:'Active', score:9, badge:'red' },
-  v4:{ name:'BrightHR Systems', company:'BrightHR Pty Ltd', category:'HR Tech', tier:'Gold', contractNo:'HR-2024-055', agreementType:'Software License Agreement', effectiveDate:'May 5, 2024', expiry:'May 5, 2026', daysToExpiry:15, autoRenew:'No', autoRenewType:'', terminationNotice:'45 days', contractTerm:'2 years', currentTerm:'Year 2', adminFee:'6%', adminFeeNotes:'', tiers:'', gpo:'', exclusivity:'Exclusive — HR category', assignment:'Not permitted without written consent', perpetuity:'Data rights in perpetuity', tail:'12 months post-termination', markets:'National', classOfTrade:'HR Technology', website:'brighthr.com', procContact:'Anna Cruz', title:'Chief Revenue Officer', bizPhone:'(646) 555-0404', mobile:'(646) 555-9404', email:'ac@brighthr.com', shared2:'James Wu', title2:'Legal Counsel', mobile2:'(646) 555-9505', email2:'jw@brighthr.com', lastComm:'Apr 9, 2026', followUp:'Apr 14, 2026', status:'Critical', score:10, badge:'red' },
-  v2:{ name:'TechStart Solutions', company:'TechStart Inc', category:'IT', tier:'Silver', contractNo:'IT-2024-062', agreementType:'Service Agreement', effectiveDate:'Jun 15, 2024', expiry:'Jun 15, 2026', daysToExpiry:56, autoRenew:'No', autoRenewType:'', terminationNotice:'30 days', contractTerm:'2 years', currentTerm:'Year 2', adminFee:'5%', adminFeeNotes:'', tiers:'', gpo:'', exclusivity:'Exclusive — Midwest', assignment:'Not permitted', perpetuity:'None', tail:'None', markets:'National', classOfTrade:'Technology', website:'techstart.com', procContact:'Sarah Chen', title:'Director of Partnerships', bizPhone:'(415) 555-0202', mobile:'(415) 555-9202', email:'sc@techstart.com', shared2:'', title2:'', mobile2:'', email2:'', lastComm:'Apr 3, 2026', followUp:'Apr 18, 2026', status:'Expiring Soon', score:7, badge:'amber' },
-  v6:{ name:'Vertex Pharmaceuticals', company:'Vertex Pharma', category:'Healthcare', tier:'Gold', contractNo:'HC-2024-088', agreementType:'Distribution Agreement', effectiveDate:'Aug 20, 2024', expiry:'Aug 20, 2026', daysToExpiry:122, autoRenew:'Yes', autoRenewType:'2-year automatic renewal', terminationNotice:'90 days', contractTerm:'2 years', currentTerm:'Year 2', adminFee:'10%', adminFeeNotes:'Tiered by volume', tiers:'<$1M: 8%, >$1M: 10%', gpo:'Vizient', exclusivity:'Exclusive — Oncology', assignment:'Not permitted', perpetuity:'IP rights in perpetuity', tail:'18 months', markets:'National', classOfTrade:'Pharmaceuticals', website:'vrtx.com', procContact:'Diana Wells', title:'VP National Accounts', bizPhone:'(617) 555-0606', mobile:'(617) 555-9606', email:'dw@vertex.com', shared2:'Robert Finn', title2:'Contract Administrator', mobile2:'(617) 555-9707', email2:'rf@vertex.com', lastComm:'Apr 10, 2026', followUp:'Apr 25, 2026', status:'In Renewal', score:6, badge:'blue' },
-};
+const VENDORS = {};
 
-// Sample AI analysis JSON for BrightHR
+// Sample AI analysis JSON template
 const SAMPLE_JSON = {
-  vendor_name: "BrightHR Systems",
-  addendum_summary: "This addendum extends the contract term by 24 months (to May 2028), increases the admin fee from 6% to 8%, removes the auto-renew exclusion clause (adding automatic renewal), and updates the termination notice period from 45 to 60 days. The data perpetuity clause has been modified to limit scope to anonymized aggregate data only.",
+  vendor_name: "Vendor Name",
+  addendum_summary: "This addendum modifies key contract terms.",
   overall_recommendation: "accept_with_edits",
-  recommendation_reason: "The extension and auto-renew addition are favorable. The admin fee increase should be negotiated down to 7% given current market rates. The perpetuity clause modification actually reduces risk.",
-  confidence_score: 0.87,
-  changes: [
-    { field_name:"expiry", field_label:"Contract Expiry Date", current_value:"May 5, 2026", proposed_value:"May 5, 2028", change_type:"updated", impact:"high", impact_reason:"Extends contract by 24 months — locks in pricing and terms for 2 additional years.", requires_human_review:true },
-    { field_name:"adminFee", field_label:"Admin Fee", current_value:"6%", proposed_value:"8%", change_type:"updated", impact:"high", impact_reason:"Fee increase of 2 percentage points — significant cost impact on all contracted products.", requires_human_review:true },
-    { field_name:"autoRenew", field_label:"Auto-Renew", current_value:"No", proposed_value:"Yes — Annual", change_type:"updated", impact:"high", impact_reason:"Adding auto-renew changes the renewal obligation — action is now required to NOT renew, rather than to renew.", requires_human_review:true },
-    { field_name:"terminationNotice", field_label:"Termination Notice Period", current_value:"45 days", proposed_value:"60 days", change_type:"updated", impact:"medium", impact_reason:"Extends notice window by 15 days — gives more time to act before auto-renewal locks in.", requires_human_review:false },
-    { field_name:"perpetuity", field_label:"Perpetuity Clause", current_value:"Data rights in perpetuity", proposed_value:"Anonymized aggregate data only — in perpetuity", change_type:"updated", impact:"medium", impact_reason:"Scope reduction is favorable — limits data rights to non-identifiable data only.", requires_human_review:true },
-    { field_name:"contractTerm", field_label:"Contract Term", current_value:"2 years", proposed_value:"4 years (cumulative)", change_type:"updated", impact:"low", impact_reason:"Reflects updated total contract duration with the extension.", requires_human_review:false },
-  ],
-  risks: [
-    { risk_title:"Admin fee increase above market rate", risk_description:"An 8% admin fee is at the high end for HR technology vendors. Market rate for comparable platforms is 5–7%. Accepting without negotiation may set a precedent for future increases.", severity:"high", recommended_action:"Counter-propose 7% as a compromise. Request volume discount tiers." },
-    { risk_title:"Auto-renew creates passive commitment", risk_description:"Adding auto-renew means the contract will extend for 1 year automatically unless you act 60 days before expiry. With 2 years remaining, this creates a new obligation in 2027.", severity:"medium", recommended_action:"Set a calendar reminder for March 2028 to review before the auto-renew window closes." },
-    { risk_title:"Notice deadline already passed for current term", risk_description:"The current contract expires May 5, 2026 with a 45-day notice period. That deadline (March 21) has passed. This addendum addresses that issue by extending the term.", severity:"critical", recommended_action:"Confirm with legal that this addendum retroactively resolves the missed notice deadline." },
-  ],
-  fields_not_in_addendum: ["category","tier","contractNo","gpo","exclusivity","assignment","markets","classOfTrade","website","procContact","email","bizPhone"],
-  suggested_follow_up_date: "2028-03-05",
-  suggested_calendar_event: { title:"BrightHR Auto-Renew Deadline", date:"2028-03-05", reason:"60-day notice window before new auto-renew expiry in May 2028" }
+  recommendation_reason: "Review the proposed changes carefully.",
+  confidence_score: 0.85,
+  changes: [],
+  risks: [],
+  fields_not_in_addendum: [],
+  suggested_follow_up_date: null,
+  suggested_calendar_event: null
 };
 
-let currentVendorId = 'v4';
+let currentVendorId = null;
 let appState = 'upload'; // 'upload' | 'decision'
 let decisions = {}; // field_name -> { decision, customValue, note }
 
-function getVendor() { return VENDORS[currentVendorId]; }
+function getVendor() { return VENDORS[currentVendorId] || null; }
 
 // ── Render Left Column ────────────────────────────────────────────────────────
 function renderLeft() {
   const v = getVendor();
+  if (!v) {
+    document.getElementById('left-title').textContent = 'Current Record — Select a Vendor';
+    document.getElementById('field-grid').innerHTML = '<div style="grid-column:1/-1;padding:20px;text-align:center;color:var(--muted)">No vendor selected</div>';
+    return;
+  }
   document.getElementById('left-title').textContent = 'Current Record — ' + v.name;
   const fg = document.getElementById('field-grid');
   fg.innerHTML = '';
@@ -333,8 +319,7 @@ function renderLeft() {
   const sections = [
     { label:'Contract', fields:[
       ['Contract No.', v.contractNo],['Agreement Type', v.agreementType],
-      ['Effective Date', v.effectiveDate],
-      ['Expiry Date', v.expiry, v.daysToExpiry<=30?'critical':v.daysToExpiry<=90?'warning':''],
+      ['Effective Date', v.effectiveDate],['Expiry Date', v.expiry, v.daysToExpiry<=30?'critical':''],
       ['Days to Expiry', v.daysToExpiry+'d', v.daysToExpiry<=7?'critical':v.daysToExpiry<=30?'warning':''],
       ['Contract Term', v.contractTerm],['Current Term', v.currentTerm],['Status', v.status],
     ]},
@@ -384,6 +369,12 @@ function renderLeft() {
 function renderUploadState() {
   const v = getVendor();
   const rc = document.getElementById('right-col');
+  
+  if (!v) {
+    rc.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);align-self:center">Select a vendor from the left to begin reviewing addendums</div>';
+    return;
+  }
+
   rc.innerHTML = '';
 
   // Step 1 — Upload
@@ -403,8 +394,7 @@ function renderUploadState() {
   rc.appendChild(s1);
 
   // Step 2 — Prompt
-  const v2 = getVendor();
-  const promptText = buildPrompt(v2);
+  const promptText = buildPrompt(v);
   const s2 = div('prompt-section anim');
   s2.innerHTML = `
     <div class="step-label">Step 2 — AI Analysis Prompt</div>
@@ -629,7 +619,8 @@ function simulateFileUpload() {
   if (!dz||!fd) return;
   dz.style.display='none';
   fd.style.display='flex';
-  document.getElementById('f-name').textContent='BrightHR_Addendum_2026.pdf';
+  const v = getVendor();
+  document.getElementById('f-name').textContent=v.name+'_Addendum.pdf';
   document.getElementById('f-size').textContent='284 KB · PDF document';
 }
 function removeFile() {
@@ -729,7 +720,13 @@ Return ONLY the JSON. No explanation before or after it.`;
 
 // ── Switch Vendor ──────────────────────────────────────────────────────────
 function switchVendor() {
-  currentVendorId = document.getElementById('vendor-select').value;
+  const sel = document.getElementById('vendor-select');
+  currentVendorId = sel.value;
+  if (!currentVendorId) {
+    renderLeft();
+    document.getElementById('right-col').innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);align-self:center">Select a vendor from the left to begin reviewing addendums</div>';
+    return;
+  }
   appState = 'upload'; currentAnalysis = null; decisions = {};
   renderLeft();
   renderUploadState();
