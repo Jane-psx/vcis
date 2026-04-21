@@ -2,19 +2,17 @@
 
 A client-side vendor contract management platform. No framework, no build step, no backend. Open any `.html` file directly in your browser or serve via GitHub Pages.
 
-**Live demo:** `https://jane-psx.github.io/vcis/`
-
 ---
 
 ## Quick start
 
 ```
-https://jane-psx.github.io/vcis/modules/01-dashboard.html
+https://YOUR_USERNAME.github.io/vcis/modules/01-dashboard.html
 ```
 
 Or clone and open locally:
 ```bash
-git clone https://github.com/jane-psx/vcis.git
+git clone https://github.com/YOUR_USERNAME/vcis.git
 cd vcis
 open modules/01-dashboard.html   # macOS
 # or just double-click the file in Finder / Explorer
@@ -88,4 +86,4 @@ vcis/
 
 Repo → Settings → Pages → Source: `main` branch → `/ (root)` → Save
 
-Live at: `https://jane-psx.github.io/vcis/`
+Live at: `https://YOUR_USERNAME.github.io/vcis/`
