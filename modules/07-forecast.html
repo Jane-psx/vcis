@@ -7,8 +7,8 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--bg:#0b0e1a;--sb:#0f1221;--card:#131729;--card2:#181d35;--border:#1e2444;--border2:#252b4f;--text:#e8ecf8;--muted:#5a6490;--muted2:#7a85b0;--blue:#4f7cff;--blue-dim:rgba(79,124,255,.12);--green:#22c55e;--green-dim:rgba(34,197,94,.12);--amber:#f59e0b;--amber-dim:rgba(245,158,11,.12);--red:#ef4444;--red-dim:rgba(239,68,68,.12);--purple:#a855f7;--purple-dim:rgba(168,85,247,.12);--font:'Sora',sans-serif;--mono:'DM Mono',monospace;}
-body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13px;min-height:100vh;display:flex;flex-direction:column}
-.top-bar{display:flex;align-items:center;padding:0 24px;height:52px;border-bottom:1px solid var(--border);background:var(--sb);flex-shrink:0;gap:8px;position:sticky;top:0;z-index:10}
+body{padding-top:52px !important;font-family:var(--font);background:var(--bg);color:var(--text);font-size:13px;min-height:100vh;display:flex;flex-direction:column}
+.top-bar{position:fixed;top:0;left:220px;right:0;z-index:50;display:flex;align-items:center;padding:0 24px;height:52px;border-bottom:1px solid var(--border);background:var(--sb);flex-shrink:0;gap:8px;position:sticky;top:0;z-index:10}
 .top-logo{font-size:11px;letter-spacing:.2em;color:var(--blue);font-weight:600;text-transform:uppercase}
 .div{width:1px;height:20px;background:var(--border2);margin:0 4px}
 .top-title{font-size:15px;font-weight:600}
@@ -76,9 +76,72 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13
 .copy-btn:hover{background:rgba(79,124,255,.2)}
 #toast{position:fixed;bottom:24px;right:24px;padding:10px 18px;border-radius:8px;font-size:12px;color:#fff;opacity:0;transform:translateY(8px);transition:all .2s;pointer-events:none;z-index:9999;font-weight:500}
 #toast.show{opacity:1;transform:translateY(0)}
+
+/* ── VCIS SHARED SIDEBAR ─────────────────────────────────────── */
+#vcis-sidebar{position:fixed;top:0;left:0;width:220px;height:100vh;background:#0f1221;border-right:1px solid #1e2444;display:flex;flex-direction:column;z-index:100;overflow:hidden;font-family:'Sora',sans-serif}
+#vcis-sidebar .sb-logo{padding:16px;border-bottom:1px solid #1e2444;display:flex;align-items:center;gap:8px;text-decoration:none}
+#vcis-sidebar .sb-mark{width:30px;height:30px;background:rgba(79,124,255,.12);border:1px solid rgba(79,124,255,.3);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#4f7cff;flex-shrink:0}
+#vcis-sidebar .sb-name{font-size:13px;font-weight:700;color:#e8ecf8}
+#vcis-sidebar .sb-sub{font-size:9px;color:#5a6490;letter-spacing:.06em;text-transform:uppercase}
+#vcis-sidebar .sb-ai{font-size:9px;padding:2px 7px;border-radius:10px;border:1px solid #1e2444;display:flex;align-items:center;gap:4px;margin-left:auto}
+#vcis-sidebar nav{flex:1;overflow-y:auto;padding:6px 0}
+#vcis-sidebar nav::-webkit-scrollbar{width:3px}
+#vcis-sidebar nav::-webkit-scrollbar-thumb{background:#252b4f}
+#vcis-sidebar .nav-sec{padding:8px 16px 3px;font-size:9px;color:#5a6490;letter-spacing:.1em;text-transform:uppercase;font-weight:600}
+#vcis-sidebar a.nav-item{display:flex;align-items:center;gap:9px;padding:7px 16px;border-left:2px solid transparent;color:#7a85b0;font-size:12px;text-decoration:none;transition:all .12s;white-space:nowrap;overflow:hidden}
+#vcis-sidebar a.nav-item:hover{background:rgba(255,255,255,.03);color:#e8ecf8}
+#vcis-sidebar a.nav-item.active{color:#4f7cff;border-left-color:#4f7cff;background:rgba(79,124,255,.12);font-weight:500}
+#vcis-sidebar a.nav-item svg{width:15px;height:15px;flex-shrink:0;opacity:.7}
+#vcis-sidebar a.nav-item.active svg,#vcis-sidebar a.nav-item:hover svg{opacity:1}
+#vcis-sidebar .nb{margin-left:auto;font-size:9px;padding:1px 6px;border-radius:10px;font-weight:600;flex-shrink:0}
+#vcis-sidebar .nb-red{background:rgba(239,68,68,.12);color:#ef4444}
+#vcis-sidebar .nb-amber{background:rgba(245,158,11,.12);color:#f59e0b}
+#vcis-sidebar .sb-foot{padding:11px 16px;border-top:1px solid #1e2444;display:flex;align-items:center;gap:8px}
+#vcis-sidebar .sb-av{width:28px;height:28px;border-radius:50%;background:rgba(79,124,255,.12);border:1px solid rgba(79,124,255,.3);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#4f7cff;flex-shrink:0}
+#vcis-sidebar .sb-un{font-size:11px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#e8ecf8}
+#vcis-sidebar .sb-ur{font-size:9px;color:#5a6490}
+#vcis-sidebar .sb-cfg{font-size:11px;color:#5a6490;padding:3px 7px;border-radius:3px;border:1px solid #1e2444;text-decoration:none;flex-shrink:0}
+#vcis-sidebar .sb-cfg:hover{color:#4f7cff;border-color:#4f7cff}
+body{margin-left:220px !important}
 </style>
 </head>
 <body>
+<div id="vcis-sidebar">
+  <a href="01-dashboard.html" class="sb-logo">
+    <div class="sb-mark">VC</div>
+    <div style="flex:1"><div class="sb-name">VCIS</div><div class="sb-sub">Contract Intel</div></div>
+    <div class="sb-ai"><span id="sb-ai-dot" style="width:5px;height:5px;border-radius:50%;background:#5a6490;display:inline-block"></span>&nbsp;<span id="sb-ai-lbl" style="color:#5a6490">AI</span></div>
+  </a>
+  <nav><div class="nav-sec">Main</div>
+<a href="01-dashboard.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
+<a href="02-vendor-database.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4.03 3 9 3s9-1.34 9-3"/></svg>Vendor Database</a>
+<a href="03-addendum-review.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Addendum Review<span class="nb nb-red">2</span></a>
+<div class="nav-sec">Pipeline</div>
+<a href="04-itw.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>In The Works</a>
+<a href="05-reviews.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Reviews &amp; Tasks</a>
+<div class="nav-sec">Schedule</div>
+<a href="06-calendar.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Calendar</a>
+<a href="07-forecast.html" class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>Forecast</a>
+<div class="nav-sec">Insights</div>
+<a href="08-analytics.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>Analytics</a>
+<a href="09-audit.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>History &amp; Audit</a>
+<a href="10-datacheck.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Data Check<span class="nb nb-amber">7</span></a>
+</nav>
+  <div class="sb-foot">
+    <div class="sb-av" id="sb-av">U</div>
+    <div style="flex:1;min-width:0"><div class="sb-un" id="sb-un">User</div><div class="sb-ur" id="sb-ur">Viewer</div></div>
+    <a href="11-settings.html" class="sb-cfg" title="Settings">&#9881;</a>
+  </div>
+</div>
+<script>
+(function(){
+  try{var u=JSON.parse(localStorage.getItem('vcis_user')||'{}');if(u.name)document.getElementById('sb-un').textContent=u.name;if(u.role)document.getElementById('sb-ur').textContent=u.role;if(u.initials)document.getElementById('sb-av').textContent=u.initials;}catch(e){}
+  var k=localStorage.getItem('vcis_groq_key');
+  var d=document.getElementById('sb-ai-dot');var l=document.getElementById('sb-ai-lbl');
+  if(k&&d&&l){d.style.background='#22c55e';l.style.color='#22c55e';l.textContent='AI on';}
+})();
+</script>
+
 <div class="top-bar">
   <span class="top-logo">VCIS</span><div class="div"></div>
   <span class="top-title">Forecast — 12-Month Renewal Pipeline</span>
