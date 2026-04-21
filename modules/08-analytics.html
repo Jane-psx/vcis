@@ -141,12 +141,12 @@ body{margin-left:220px !important}
 </div>
 <div id="page">
 <div class="kpi-row">
-  <div class="kpi blue"><div class="kpi-val blue">6</div><div class="kpi-label">Total vendors</div></div>
-  <div class="kpi green"><div class="kpi-val green">4</div><div class="kpi-label">Active contracts</div></div>
-  <div class="kpi amber"><div class="kpi-val amber">2</div><div class="kpi-label">Expiring in 30d</div></div>
-  <div class="kpi red"><div class="kpi-val red">1</div><div class="kpi-label">Critical action req.</div></div>
-  <div class="kpi teal"><div class="kpi-val teal">84%</div><div class="kpi-label">Data completeness</div></div>
-  <div class="kpi purple"><div class="kpi-val purple">7.2</div><div class="kpi-label">Avg priority score</div></div>
+  <div class="kpi blue"><div class="kpi-val blue">0</div><div class="kpi-label">Total vendors</div></div>
+  <div class="kpi green"><div class="kpi-val green">0</div><div class="kpi-label">Active contracts</div></div>
+  <div class="kpi amber"><div class="kpi-val amber">0</div><div class="kpi-label">Expiring in 30d</div></div>
+  <div class="kpi red"><div class="kpi-val red">0</div><div class="kpi-label">Critical action req.</div></div>
+  <div class="kpi teal"><div class="kpi-val teal">0%</div><div class="kpi-label">Data completeness</div></div>
+  <div class="kpi purple"><div class="kpi-val purple">0</div><div class="kpi-label">Avg priority score</div></div>
 </div>
 <div class="charts-2">
   <div class="chart-card"><div class="chart-head"><span class="chart-title">Contracts expiring by month</span><span class="chart-sub">Next 12 months</span></div><div class="chart-body"><canvas id="chart-expiry"></canvas></div></div>
@@ -201,20 +201,13 @@ const GROQ = {
   }
 };
 
-/* ── VENDOR DATA (trimmed for token efficiency) ─────────────────────── */
-const VENDOR_STATS = [
-  { name:'BrightHR Systems', category:'HR Tech', tier:'Gold', status:'Critical', score:10, adminFee:'6%', daysToExpiry:15, autoRenew:'No', completeness:92, lastComm:'Apr 9, 2026' },
-  { name:'Acme Medical Supply', category:'Healthcare', tier:'Gold', status:'Active', score:9, adminFee:'8%', daysToExpiry:9, autoRenew:'Yes', completeness:88, lastComm:'Apr 7, 2026' },
-  { name:'TechStart Solutions', category:'IT', tier:'Silver', status:'Expiring Soon', score:7, adminFee:'5%', daysToExpiry:56, autoRenew:'No', completeness:74, lastComm:'Apr 3, 2026' },
-  { name:'Vertex Pharmaceuticals', category:'Healthcare', tier:'Gold', status:'In Renewal', score:6, adminFee:'10%', daysToExpiry:122, autoRenew:'Yes', completeness:83, lastComm:'Apr 10, 2026' },
-  { name:'GrowFast Logistics', category:'Logistics', tier:'Bronze', status:'Active', score:4, adminFee:'3%', daysToExpiry:265, autoRenew:'Yes', completeness:61, lastComm:'Mar 26, 2026' },
-  { name:'NovaCo Facilities', category:'Facilities', tier:'Silver', status:'Expired', score:3, adminFee:'4%', daysToExpiry:-111, autoRenew:'No', completeness:45, lastComm:'Feb 28, 2026' },
-];
+/* ── VENDOR DATA (empty for template) ─────────────────────── */
+const VENDOR_STATS = [];
 
 const PORTFOLIO_STATS = {
-  totalVendors: 6, activeContracts: 4, expiringIn30: 2,
-  criticalCount: 1, avgCompleteness: 84, avgPriorityScore: 7.2,
-  pendingAddendumReviews: 2, itwPipeline: 10,
+  totalVendors: 0, activeContracts: 0, expiringIn30: 0,
+  criticalCount: 0, avgCompleteness: 0, avgPriorityScore: 0,
+  pendingAddendumReviews: 0, itwPipeline: 0,
 };
 
 /* ── INDICATOR ─────────────────────────────────────────────────────────── */
@@ -308,15 +301,7 @@ function renderLiveInsights(container, data) {
 
 function renderStaticInsights(container) {
   container.innerHTML += `<div class="insight-summary" style="margin-top:10px">
-    Your portfolio shows <strong>2 critical expiries</strong> this month requiring immediate action. Healthcare dominates your vendor mix with the highest admin fee concentration — Vertex Pharmaceuticals alone carries <strong>10% admin fee</strong>.
-  </div>
-  <div style="font-size:11px;margin-bottom:8px;padding:7px 10px;background:var(--red-dim);border-radius:5px;color:var(--red)">&#9888; <strong>Top Risk:</strong> BrightHR Systems expires May 5 with a missed 45-day notice deadline — legal escalation required today.</div>
-  <div class="insight-bullets">
-    <div class="ib"><div class="ib-dot dot-critical"></div><span><strong>BrightHR Systems</strong> notice deadline passed Mar 21 — contract expires in 15 days with no renewal action.</span></div>
-    <div class="ib"><div class="ib-dot dot-critical"></div><span><strong>Acme Medical Supply</strong> expires in 9 days — auto-renew active but renewal proposal still needed.</span></div>
-    <div class="ib"><div class="ib-dot dot-warning"></div><span><strong>NovaCo Facilities</strong> expired Dec 2025 — vendor still operating without active contract, legal risk.</span></div>
-    <div class="ib"><div class="ib-dot dot-info"></div><span><strong>Healthcare category</strong> holds 2 of 3 Gold-tier vendors — highest admin fee concentration at 18% combined.</span></div>
-    <div class="ib"><div class="ib-dot dot-positive"></div><span><strong>Vertex Pharmaceuticals</strong> renewal in progress — strategic 10% admin fee contract being secured for 2 more years.</span></div>
+    No vendor data available yet. Import vendors from the Vendor Database or In The Works pipeline to see analytics insights powered by Aria.
   </div>`;
 }
 
@@ -325,11 +310,11 @@ Chart.defaults.color='#7a85b0';Chart.defaults.borderColor='#1e2444';
 Chart.defaults.font.family="'Sora',sans-serif";Chart.defaults.font.size=11;
 const opts={responsive:true,plugins:{legend:{display:false},tooltip:{backgroundColor:'#181d35',borderColor:'#252b4f',borderWidth:1}},scales:{x:{grid:{color:'rgba(30,36,68,.5)'},ticks:{color:'#5a6490'}},y:{grid:{color:'rgba(30,36,68,.5)'},ticks:{color:'#5a6490',precision:0}}}};
 
-new Chart(document.getElementById('chart-expiry'),{type:'bar',data:{labels:['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'],datasets:[{data:[1,1,1,0,1,0,0,0,0,1,0,0],backgroundColor:ctx=>{const v=ctx.raw;return v>=2?'rgba(239,68,68,.5)':v===1?'rgba(245,158,11,.45)':'rgba(34,197,94,.35)'},borderRadius:4}]},options:{...opts,scales:{...opts.scales,y:{...opts.scales?.y,max:3,ticks:{color:'#5a6490',precision:0}}}}});
-new Chart(document.getElementById('chart-status'),{type:'doughnut',data:{labels:['Active','Expiring','Critical','In Renewal','Expired'],datasets:[{data:[2,1,1,1,1],backgroundColor:['rgba(34,197,94,.5)','rgba(245,158,11,.5)','rgba(239,68,68,.5)','rgba(79,124,255,.5)','rgba(90,100,144,.4)'],borderWidth:0,hoverOffset:8}]},options:{responsive:true,plugins:{legend:{display:true,position:'bottom',labels:{color:'#7a85b0',boxWidth:10,padding:10,font:{size:10}}}},cutout:'65%'}});
-new Chart(document.getElementById('chart-fee'),{type:'bar',data:{labels:['Healthcare','IT','HR Tech','Logistics','Facilities'],datasets:[{data:[18,5,6,3,4],backgroundColor:['rgba(79,124,255,.5)','rgba(20,184,166,.5)','rgba(168,85,247,.5)','rgba(245,158,11,.5)','rgba(34,197,94,.5)'],borderRadius:4}]},options:{...opts,indexAxis:'y'}});
-new Chart(document.getElementById('chart-score'),{type:'bar',data:{labels:['0-2','3-4','5-6','7-8','9-10'],datasets:[{data:[1,1,1,1,2],backgroundColor:'rgba(79,124,255,.45)',borderRadius:4}]},options:{...opts}});
-new Chart(document.getElementById('chart-completeness'),{type:'bar',data:{labels:['HR Tech','Healthcare','IT','Logistics','Facilities'],datasets:[{data:[92,85,74,61,45],backgroundColor:ctx=>{const v=ctx.raw;return v>=80?'rgba(34,197,94,.45)':v>=60?'rgba(245,158,11,.45)':'rgba(239,68,68,.45)'},borderRadius:4}]},options:{...opts,scales:{...opts.scales,y:{...opts.scales?.y,max:100,ticks:{color:'#5a6490',precision:0}}}}});
+new Chart(document.getElementById('chart-expiry'),{type:'bar',data:{labels:['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'],datasets:[{data:[0,0,0,0,0,0,0,0,0,0,0,0],backgroundColor:'rgba(79,124,255,.5)',borderRadius:4}]},options:{...opts,scales:{...opts.scales,y:{...opts.scales?.y,max:3,ticks:{color:'#5a6490',precision:0}}}}});
+new Chart(document.getElementById('chart-status'),{type:'doughnut',data:{labels:['Active','Expiring','Critical','In Renewal','Expired'],datasets:[{data:[0,0,0,0,0],backgroundColor:['rgba(34,197,94,.5)','rgba(245,158,11,.5)','rgba(239,68,68,.5)','rgba(79,124,255,.5)','rgba(90,100,144,.4)'],borderWidth:0,hoverOffset:8}]},options:{responsive:true,plugins:{legend:{display:true,position:'bottom',labels:{color:'#7a85b0',boxWidth:10,padding:10,font:{size:10}}}},cutout:'65%'}});
+new Chart(document.getElementById('chart-fee'),{type:'bar',data:{labels:['Healthcare','IT','HR Tech','Logistics','Facilities'],datasets:[{data:[0,0,0,0,0],backgroundColor:['rgba(79,124,255,.5)','rgba(20,184,166,.5)','rgba(168,85,247,.5)','rgba(245,158,11,.5)','rgba(34,197,94,.5)'],borderRadius:4}]},options:{...opts,indexAxis:'y'}});
+new Chart(document.getElementById('chart-score'),{type:'bar',data:{labels:['0-2','3-4','5-6','7-8','9-10'],datasets:[{data:[0,0,0,0,0],backgroundColor:'rgba(79,124,255,.45)',borderRadius:4}]},options:{...opts}});
+new Chart(document.getElementById('chart-completeness'),{type:'bar',data:{labels:['HR Tech','Healthcare','IT','Logistics','Facilities'],datasets:[{data:[0,0,0,0,0],backgroundColor:'rgba(79,124,255,.45)',borderRadius:4}]},options:{...opts,scales:{...opts.scales,y:{...opts.scales?.y,max:100,ticks:{color:'#5a6490',precision:0}}}}});
 
 function toast(msg,color='#4f7cff'){const t=document.getElementById('toast');t.textContent=msg;t.style.background=color;t.classList.add('show');clearTimeout(t._tid);t._tid=setTimeout(()=>t.classList.remove('show'),2600);}
 
