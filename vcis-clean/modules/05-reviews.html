@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VCIS — Reviews & Tasks</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0b0e1a;--sb:#0f1221;--card:#131729;--card2:#181d35;--border:#1e2444;--border2:#252b4f;--text:#e8ecf8;--muted:#5a6490;--muted2:#7a85b0;--blue:#4f7cff;--blue2:#3d6aff;--blue-dim:rgba(79,124,255,.12);--green:#22c55e;--green-dim:rgba(34,197,94,.12);--amber:#f59e0b;--amber-dim:rgba(245,158,11,.12);--red:#ef4444;--red-dim:rgba(239,68,68,.12);--purple:#a855f7;--purple-dim:rgba(168,85,247,.12);--font:"Sora",sans-serif;--mono:"DM Mono",monospace;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13px;height:100vh;overflow:hidden;display:flex;flex-direction:column}
+.top-bar{display:flex;align-items:center;padding:0 24px;height:52px;border-bottom:1px solid var(--border);background:var(--sb);flex-shrink:0;gap:8px}
+.top-logo{font-size:11px;letter-spacing:.2em;color:var(--blue);font-weight:600;text-transform:uppercase}
+.div{width:1px;height:20px;background:var(--border2);margin:0 4px}
+.top-title{font-size:15px;font-weight:600}.top-sub{font-size:11px;color:var(--muted2)}
+.top-right{margin-left:auto;display:flex;gap:8px}
+.btn{padding:7px 14px;border-radius:6px;font-family:var(--font);font-size:12px;font-weight:500;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:6px;transition:all .15s}
+.btn-primary{background:var(--blue);color:#fff}.btn-primary:hover{background:var(--blue2)}
+.btn-outline{background:transparent;color:var(--text);border:1px solid var(--border2)}.btn-outline:hover{border-color:var(--blue);color:var(--blue)}
+.btn-sm{padding:4px 10px;font-size:11px;border-radius:5px}
+.btn-success{background:var(--green-dim);color:var(--green);border:1px solid rgba(34,197,94,.25)}.btn-danger{background:var(--red-dim);color:var(--red);border:1px solid rgba(239,68,68,.25)}
+.btn-icon{background:transparent;border:none;cursor:pointer;color:var(--muted2);padding:5px;border-radius:4px;display:inline-flex;align-items:center}.btn-icon:hover{color:var(--text);background:var(--card2)}
+.filter-bar{display:flex;align-items:center;gap:8px;padding:10px 24px;border-bottom:1px solid var(--border);background:var(--sb);flex-shrink:0}
+.tabs{display:flex;gap:4px}
+.tab{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:500;cursor:pointer;border:1px solid var(--border2);color:var(--muted2);transition:all .15s}
+.tab:hover{color:var(--text)}.tab.active{background:var(--blue-dim);color:var(--blue);border-color:rgba(79,124,255,.3)}
+.filter-sel{background:var(--bg);border:1px solid var(--border2);color:var(--text);font-family:var(--font);font-size:11px;padding:5px 9px;border-radius:6px;outline:none;cursor:pointer}
+.search-wrap{position:relative;flex:1;max-width:260px}
+.search-wrap svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+.search-inp{width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);font-family:var(--font);font-size:12px;padding:6px 10px 6px 30px;border-radius:6px;outline:none}
+.search-inp:focus{border-color:var(--blue)}.search-inp::placeholder{color:var(--muted)}
+#content{flex:1;overflow-y:auto;padding:16px 24px}
+#content::-webkit-scrollbar{width:4px}
+#content::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.review-card{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;transition:border-color .15s}
+.review-card:hover{border-color:var(--border2)}
+.rc-head{display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;border-bottom:1px solid var(--border)}
+.rc-status{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.rc-name{font-size:13px;font-weight:600;flex:1}
+.rc-badges{display:flex;gap:6px;align-items:center}
+.status-pill{font-size:10px;padding:2px 9px;border-radius:20px;font-weight:500}
+.s-pending{background:var(--amber-dim);color:var(--amber)}.s-inprogress{background:var(--blue-dim);color:var(--blue)}.s-completed{background:var(--green-dim);color:var(--green)}.s-cancelled{background:rgba(90,100,144,.15);color:var(--muted2)}
+.due-badge{font-size:10px;padding:2px 8px;border-radius:10px}
+.due-overdue{background:var(--red-dim);color:var(--red)}.due-soon{background:var(--amber-dim);color:var(--amber)}.due-ok{background:var(--green-dim);color:var(--green)}
+.rc-actions{display:flex;gap:4px}
+.rc-body{padding:12px 16px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.rc-section{font-size:10px;color:var(--muted2)}
+.rc-section-title{font-size:9px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.rc-field{margin-bottom:4px;font-size:11px;color:var(--text)}
+.rc-field span{color:var(--muted2);margin-right:4px}
+.tp-wrap{grid-column:1/-1;margin-top:4px}
+.tp-head{font-size:9px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--purple);margin-bottom:5px;display:flex;align-items:center;gap:4px}
+.tp-list{display:flex;flex-direction:column;gap:3px}
+.tp-item{font-size:11px;color:var(--muted2);padding:4px 8px;background:var(--card2);border-radius:4px;border-left:2px solid var(--purple-dim);line-height:1.5}
+.ai-detect{grid-column:1/-1;background:var(--purple-dim);border:1px solid rgba(168,85,247,.2);border-radius:7px;padding:9px 12px;display:flex;align-items:center;gap:10px}
+.ai-det-text{flex:1;font-size:11px;color:var(--muted2)}<style>
+.ai-det-text strong{color:var(--text)}
+.ai-det-actions{display:flex;gap:6px}
+.ai-acc{font-size:10px;padding:3px 10px;background:var(--green-dim);color:var(--green);border:1px solid rgba(34,197,94,.2);border-radius:4px;cursor:pointer;font-family:var(--font)}
+.ai-dis{font-size:10px;padding:3px 10px;background:transparent;color:var(--muted);border:1px solid var(--border2);border-radius:4px;cursor:pointer;font-family:var(--font)}
+.expand-arrow{color:var(--muted);font-size:11px;transition:transform .2s;cursor:pointer}
+.expanded .expand-arrow{transform:rotate(180deg)}
+.rc-body{display:none}.review-card.expanded .rc-body{display:grid}
+.prep-modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;display:none;align-items:center;justify-content:center}
+.prep-modal-bg.open{display:flex}
+.prep-modal{background:var(--card);border:1px solid var(--border2);border-radius:12px;width:500px;max-height:80vh;overflow-y:auto}
+.pm-head{padding:16px 20px 13px;border-bottom:1px solid var(--border)}.pm-title{font-size:14px;font-weight:600;margin-bottom:2px}.pm-sub{font-size:11px;color:var(--muted2)}
+.pm-body{padding:16px 20px}.pm-foot{padding:12px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:7px}
+.prompt-area{background:var(--bg);border:1px solid var(--border2);border-radius:7px;padding:11px;font-family:var(--mono);font-size:10px;color:var(--muted2);line-height:1.7;max-height:200px;overflow-y:auto;margin-bottom:10px;white-space:pre-wrap}
+.copy-prompt-btn{width:100%;padding:9px;background:var(--blue-dim);color:var(--blue);border:1px solid rgba(79,124,255,.3);border-radius:6px;cursor:pointer;font-family:var(--font);font-size:12px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:6px}
+.copy-prompt-btn:hover{background:rgba(79,124,255,.2)}
+#toast{position:fixed;bottom:24px;right:24px;padding:10px 18px;border-radius:8px;font-size:12px;color:#fff;opacity:0;transform:translateY(8px);transition:all .2s;pointer-events:none;z-index:9999;font-weight:500}
+#toast.show{opacity:1;transform:translateY(0)}
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <span class="top-logo">VCIS</span><div class="div"></div>
+  <span class="top-title">Reviews & Tasks</span><span class="top-sub">— scheduled vendor reviews</span>
+  <div class="top-right"><button class="btn btn-outline btn-sm" onclick="scanAllReviewsGroq()">✨ Aria: Scan All</button><button class="btn btn-primary btn-sm" onclick="openAddReview()">+ Add Review</button></div>
+</div>
+<div class="filter-bar">
+  <div class="tabs">
+    <div class="tab active" onclick="filterStatus('All',this)">All</div>
+    <div class="tab" onclick="filterStatus('Pending',this)">Pending</div>
+    <div class="tab" onclick="filterStatus('In Progress',this)">In Progress</div>
+    <div class="tab" onclick="filterStatus('Completed',this)">Completed</div>
+  </div>
+  <select class="filter-sel" id="f-cat" onchange="renderReviews()"><option value="">All Categories</option><option>Healthcare</option><option>IT</option><option>HR Tech</option><option>Facilities</option><option>Logistics</option></select>
+  <div class="search-wrap">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input class="search-inp" id="search" placeholder="Search reviews..." oninput="renderReviews()">
+  </div>
+</div>
+<div id="content"></div>
+<div class="prep-modal-bg" id="prep-modal-bg">
+  <div class="prep-modal">
+    <div class="pm-head"><div class="pm-title" id="prep-title">Prepare for Review</div><div class="pm-sub">Copy this prompt and paste into your AI tool along with vendor details</div></div>
+    <div class="pm-body"><div class="prompt-area" id="prep-prompt"></div><button class="copy-prompt-btn" onclick="copyPrepPrompt()">&#128203; Copy Preparation Prompt</button></div>
+    <div class="pm-foot"><button class="btn btn-outline btn-sm" onclick="closePrepModal()">Close</button></div>
+  </div>
+</div>
+<div id="toast"></div>
+<script>
+const REVIEWS=[
+  {id:"r1",vendor:"Acme Medical Supply",category:"Healthcare",date:"Apr 21, 2026",services:"Surgical supplies, diagnostic equipment",action:"Annual performance review & contract renewal discussion",sfNotes:"Q1 performance: 98.2% on-time delivery. Minor complaint re: back-order on item SKU-4421.",contractNotes:"Contract expires Apr 29. Renewal terms need to be finalized. Admin fee discussion pending.",talkingPoints:["Review Q1 delivery metrics","Discuss admin fee renewal at 8% vs proposed 8.5%","Address SKU-4421 back-order resolution plan","Confirm territory exclusivity terms for Year 4"],status:"Pending",assigned:"Jane Doe",due:"Apr 21, 2026",daysOverdue:0,aiDetected:false},
+  {id:"r2",vendor:"BrightHR Systems",category:"HR Tech",date:"Apr 18, 2026",services:"HR platform, payroll, benefits, talent management",action:"Addendum review follow-up & renewal finalization",sfNotes:"Legal team reviewed addendum terms. Two clauses need clarification on data portability.",contractNotes:"Addendum extends contract to May 2028. Admin fee moving to 8%. Needs sign-off from VP.",talkingPoints:["Clarify data portability clause section 12.4","Confirm addendum execution timeline","Discuss training schedule for new HR modules","Get sign-off authority contact from their legal team"],status:"In Progress",assigned:"Mike Torres",due:"Apr 19, 2026",daysOverdue:2,aiDetected:true,aiEvent:{title:"BrightHR Addendum Sign-Off Meeting",date:"Apr 25, 2026",reason:'Detected: "addendum execution timeline"'}},
+  {id:"r3",vendor:"TechStart Solutions",category:"IT",date:"Apr 25, 2026",services:"Cloud infrastructure, managed services",action:"Mid-term check-in & renewal discussion initiation",sfNotes:"SLA compliance at 99.1% this quarter. New product offering — AI analytics — worth evaluating.",contractNotes:"Contract expires June 15. No auto-renew. Need to initiate renewal by May 15 to allow 30-day notice.",talkingPoints:["Review SLA compliance report","Evaluate new AI analytics offering","Initiate renewal discussion — confirm rates","Discuss exclusivity expansion to East Coast"],status:"Pending",assigned:"Sara Kim",due:"Apr 25, 2026",daysOverdue:0,aiDetected:false},
+  {id:"r4",vendor:"Vertex Pharmaceuticals",category:"Healthcare",date:"May 2, 2026",services:"Pharmaceutical distribution, specialty oncology",action:"Renewal strategy meeting — terms negotiation",sfNotes:"Both parties aligned on extension. Volume commitments for 2027 need to be defined.",contractNotes:"Renewal in progress. New 2-year extension being finalized. Admin fee stays at 10%.",talkingPoints:["Present volume commitment projections for 2027","Confirm 10% admin fee for renewal term","Discuss new territory additions — West Coast expansion","Review GPO compliance requirements"],status:"Pending",assigned:"Jane Doe",due:"May 2, 2026",daysOverdue:0,aiDetected:true,aiEvent:{title:"Vertex Pharma Renewal Meeting",date:"May 2, 2026",reason:'Detected: "renewal strategy meeting"'}},
+  {id:"r5",vendor:"NovaCo Facilities",category:"Facilities",date:"Mar 15, 2026",services:"Building maintenance, cleaning, security",action:"Contract status review — expired contract decision",sfNotes:"Contract lapsed Dec 31. Operations team still using vendor on informal basis. Decision needed.",contractNotes:"Legal risk: no active contract. Must either formally renew or terminate relationship immediately.",talkingPoints:["Decision required: renew or terminate","If renew: draft new contract terms","If terminate: transition plan to alternate vendor","Address liability for work done without contract"],status:"Completed",assigned:"Mike Torres",due:"Mar 15, 2026",daysOverdue:0,aiDetected:false},
+  {id:"r6",vendor:"GrowFast Logistics",category:"Logistics",date:"May 10, 2026",services:"Last-mile delivery, warehouse management",action:"Quarterly performance review",sfNotes:"East Coast expansion launched successfully. On-time rate: 96.4% — slightly below 97% SLA target.",contractNotes:"Auto-renew in January 2027 — 90-day notice required by October 2026 if cancelling.",talkingPoints:["Review Q1 performance vs 97% SLA target","Discuss East Coast expansion metrics","Address last-mile delivery delays in Northeast","Confirm 90-day notice obligations for October"],status:"Pending",assigned:"Sara Kim",due:"May 10, 2026",daysOverdue:0,aiDetected:false},
+];
+let activeStatus="All",selectedCard=null;
+function filterStatus(st,el){activeStatus=st;document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));el.classList.add("active");renderReviews();}
+function getFiltered(){
+  const q=document.getElementById("search").value.toLowerCase();
+  const cat=document.getElementById("f-cat").value;
+  return REVIEWS.filter(r=>{
+    if(activeStatus!=="All"&&r.status.replace(" ","")!==activeStatus.replace(" ",""))return false;
+    if(cat&&r.category!==cat)return false;
+    if(q&&!(r.vendor+r.services+r.action).toLowerCase().includes(q))return false;
+    return true;
+  });
+}
+function renderReviews(){
+  const c=document.getElementById("content");c.innerHTML="";
+  const items=getFiltered();
+  if(!items.length){c.innerHTML="<div style=\"text-align:center;padding:60px;color:var(--muted)\">No reviews match your filters.</div>";return;}
+  items.forEach(r=>{
+    const sc={Pending:"s-pending","In Progress":"s-inprogress",Completed:"s-completed",Cancelled:"s-cancelled"}[r.status]||"s-pending";
+    const dotColor={Pending:"var(--amber)","In Progress":"var(--blue)",Completed:"var(--green)",Cancelled:"var(--muted)"}[r.status]||"var(--amber)";
+    const dueClass=r.daysOverdue>0?"due-overdue":r.daysOverdue===0?"due-soon":"due-ok";
+    const dueLabel=r.daysOverdue>0?"Overdue "+r.daysOverdue+"d":r.due;
+    const card=make("div","review-card"+(r===selectedCard?" expanded":""));
+    card.innerHTML=\`<div class="rc-head" onclick="toggleCard(this.parentElement,'\${r.id}')">
+      <div class="rc-status" style="background:\${dotColor}"></div>
+      <div class="rc-name">\${r.vendor}</div>
+      <div class="rc-badges">
+        <span style="font-size:10px;color:var(--muted2)">\${r.category}</span>
+        <span class="status-pill \${sc}">\${r.status}</span>
+        <span class="due-badge \${dueClass}">\${dueLabel}</span>
+      </div>
+      <div class="rc-actions" onclick="event.stopPropagation()">
+        <button class="btn-icon" title="Prepare for Review" onclick="openPrepModal(REVIEWS.find(x=>x.id==='\${r.id}'))"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></button>
+        <button class="btn-icon" title="Mark Complete" onclick="markComplete('\${r.id}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></button>
+        <button class="btn-icon" onclick="toast('Scheduling...','#14b8a6')" title="Schedule"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
+      </div>
+      <span class="expand-arrow">&#9660;</span>
+    </div>
+    <div class="rc-body">
+      <div><div class="rc-section-title">Review Details</div>
+        <div class="rc-field"><span>Date:</span>\${r.date}</div>
+        <div class="rc-field"><span>Services:</span>\${r.services}</div>
+        <div class="rc-field"><span>Action:</span>\${r.action}</div>
+        <div class="rc-field"><span>Assigned:</span>\${r.assigned}</div>
+      </div>
+      <div><div class="rc-section-title">SF Notes</div>
+        <div style="font-size:11px;color:var(--muted2);line-height:1.6">\${r.sfNotes}</div>
+        <div class="rc-section-title" style="margin-top:10px">Contract Notes</div>
+        <div style="font-size:11px;color:var(--muted2);line-height:1.6">\${r.contractNotes}</div>
+      </div>
+      \${r.talkingPoints&&r.talkingPoints.length?\`<div class="tp-wrap"><div class="tp-head">✨ Talking Points</div><div class="tp-list">\${r.talkingPoints.map(tp=>\`<div class="tp-item">\${tp}</div>\`).join("")}</div></div>\`:""}
+      \${r.aiDetected?\`<div class="ai-detect"><div style="font-size:13px">✨</div><div class="ai-det-text"><strong>Aria detected a schedule:</strong> \${r.aiEvent.title} — \${r.aiEvent.date}</div><div class="ai-det-actions"><button class="ai-acc" onclick="toast('Event added to calendar','#22c55e')">Add to Calendar</button><button class="ai-dis" onclick="this.closest('.ai-detect').remove()">Dismiss</button></div></div>\`:""}
+    </div>\`;
+    c.appendChild(card);
+  });
+}
+function toggleCard(card,id){
+  const wasOpen=card.classList.contains("expanded");
+  document.querySelectorAll(".review-card").forEach(c=>c.classList.remove("expanded"));
+  if(!wasOpen)card.classList.add("expanded");
+}
+function markComplete(id){const r=REVIEWS.find(x=>x.id===id);if(r){r.status="Completed";renderReviews();toast("Marked complete!","#22c55e");}}
+function openPrepModal(r){
+  if(!r)return;
+  document.getElementById("prep-title").textContent="Prepare for Review — "+r.vendor;
+  const prompt=\`You are a procurement specialist preparing for a vendor review meeting.
+
+Vendor: \${r.vendor}
+Category: \${r.category}
+Review Date: \${r.date}
+Services: \${r.services}
+Action Required: \${r.action}
+SF Notes: \${r.sfNotes}
+Contract Notes: \${r.contractNotes}
+Talking Points: \${(r.talkingPoints||[]).join("; ")}
+
+Return ONLY a JSON object:
+{
+  "meeting_objective": "[one sentence]",
+  "key_topics": ["topic 1", "topic 2", "topic 3"],
+  "questions_to_ask": ["question 1", "question 2", "question 3"],
+  "risks_to_flag": ["risk 1", "risk 2"],
+  "documents_to_bring": ["doc 1", "doc 2"],
+  "suggested_outcome": "[what a successful meeting looks like]"
+}\`;
+  document.getElementById("prep-prompt").textContent=prompt;
+  document.getElementById("prep-modal-bg").classList.add("open");
+}
+function closePrepModal(){document.getElementById("prep-modal-bg").classList.remove("open");}
+function copyPrepPrompt(){navigator.clipboard.writeText(document.getElementById("prep-prompt").textContent).then(()=>toast("Prompt copied!","#22c55e")).catch(()=>toast("Copy failed","#ef4444"));}
+function openAddReview(){toast("Add Review form — select vendor and set date","#4f7cff");}
+function make(tag,cls){const e=document.createElement(tag);if(cls)e.className=cls;return e;}
+function toast(msg,color="#4f7cff"){const t=document.getElementById("toast");t.textContent=msg;t.style.background=color;t.classList.add("show");clearTimeout(t._tid);t._tid=setTimeout(()=>t.classList.remove("show"),2800);}
+document.getElementById("prep-modal-bg").addEventListener("click",e=>{if(e.target.id==="prep-modal-bg")closePrepModal();});
+
+/* ── GROQ SCHEDULING (REVIEWS) ───────────────────────────────────────── */
+const GROQ = {
+  model: 'llama-3.1-8b-instant',
+  url: 'https://api.groq.com/openai/v1/chat/completions',
+  getKey() { return localStorage.getItem('vcis_groq_key') || ''; },
+  hasKey() { return !!this.getKey(); },
+  async call(prompt) {
+    const key = this.getKey();
+    if (!key) throw new Error('NO_KEY');
+    const res = await fetch(this.url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+      body: JSON.stringify({
+        model: this.model, temperature: 0.15, max_tokens: 600,
+        response_format: { type: 'json_object' },
+        messages: [
+          { role: 'system', content: 'You are a scheduling AI. Extract calendar events from review notes. Always respond with valid JSON only.' },
+          { role: 'user', content: prompt }
+        ]
+      })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error?.message || 'Groq error');
+    return JSON.parse(data.choices[0].message.content);
+  }
+};
+
+async function detectScheduleGroq(reviewId) {
+  const r = REVIEWS.find(x => x.id === reviewId);
+  if (!r) return;
+
+  if (!GROQ.hasKey()) { toast('Add Groq API key in Settings to enable AI schedule detection', '#f59e0b'); return; }
+
+  toast('Aria is scanning review notes...', '#a855f7');
+
+  try {
+    const prompt = `Scan this vendor review record and detect any scheduled meetings, deadlines, or follow-up dates mentioned.
+
+Vendor: ${r.vendor}
+Date: ${r.date}
+Action: ${r.action}
+SF Notes: ${r.sfNotes}
+Contract Notes: ${r.contractNotes}
+
+Return ONLY this JSON:
+{
+  "detected": true or false,
+  "event_title": "short calendar event title or null",
+  "suggested_date": "YYYY-MM-DD or null",
+  "event_type": "call|meeting|deadline|follow_up|review",
+  "confidence": 0.0-1.0,
+  "reason": "why this event was detected"
+}`;
+
+    const result = await GROQ.call(prompt);
+
+    if (result.detected && result.confidence >= 0.6) {
+      r.aiDetected = true;
+      r.aiEvent = {
+        title: result.event_title,
+        date: result.suggested_date,
+        reason: result.reason + ' (confidence: ' + Math.round(result.confidence * 100) + '%)'
+      };
+      renderReviews();
+      toast('✓ Aria detected: "' + result.event_title + '"', '#22c55e');
+    } else {
+      toast('No schedule intent detected in this review', '#5a6490');
+    }
+  } catch(e) {
+    toast('Groq error: ' + e.message.slice(0, 60), '#ef4444');
+  }
+}
+
+async function scanAllReviewsGroq() {
+  if (!GROQ.hasKey()) { toast('Add Groq API key in Settings', '#f59e0b'); return; }
+  const pending = REVIEWS.filter(r => r.status !== 'Completed' && !r.aiDetected);
+  if (!pending.length) { toast('No pending reviews to scan', '#5a6490'); return; }
+
+  toast('Scanning ' + pending.length + ' reviews...', '#a855f7');
+
+  // trim to key fields to save tokens
+  const trimmed = pending.map(r => ({
+    id: r.id, vendor: r.vendor, date: r.date, action: r.action,
+    sfNotes: r.sfNotes.slice(0, 200), contractNotes: r.contractNotes.slice(0, 200)
+  }));
+
+  try {
+    const prompt = `Scan these vendor review records and detect any scheduled meetings or deadlines.
+
+Records:
+${JSON.stringify(trimmed, null, 2)}
+
+Return ONLY this JSON:
+{
+  "detected_events": [
+    {
+      "review_id": "the id field from the record",
+      "event_title": "short calendar event title",
+      "suggested_date": "YYYY-MM-DD",
+      "event_type": "call|meeting|deadline|follow_up|review",
+      "confidence": 0.0-1.0,
+      "reason": "brief reason"
+    }
+  ]
+}`;
+
+    const result = await GROQ.call(prompt);
+    const events = result.detected_events || [];
+    let applied = 0;
+
+    events.forEach(ev => {
+      const r = REVIEWS.find(x => x.id === ev.review_id);
+      if (r && ev.confidence >= 0.6) {
+        r.aiDetected = true;
+        r.aiEvent = { title: ev.event_title, date: ev.suggested_date, reason: ev.reason + ' (' + Math.round(ev.confidence*100) + '% confidence)' };
+        applied++;
+      }
+    });
+
+    renderReviews();
+    toast('✓ Aria found ' + applied + ' schedule' + (applied !== 1 ? 's' : '') + ' across ' + pending.length + ' reviews', '#22c55e');
+  } catch(e) {
+    toast('Groq error: ' + e.message.slice(0, 60), '#ef4444');
+  }
+}
+
+renderReviews();
+</script>
+</body>
+</html>
