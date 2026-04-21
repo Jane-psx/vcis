@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VCIS — Addendum Review</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0b0e1a;--sb:#0f1221;--card:#131729;--card2:#181d35;--card3:#1c2140;
+  --border:#1e2444;--border2:#252b4f;--text:#e8ecf8;--muted:#5a6490;--muted2:#7a85b0;
+  --blue:#4f7cff;--blue2:#3d6aff;--blue-dim:rgba(79,124,255,.12);
+  --green:#22c55e;--green-dim:rgba(34,197,94,.12);
+  --amber:#f59e0b;--amber-dim:rgba(245,158,11,.12);
+  --red:#ef4444;--red-dim:rgba(239,68,68,.12);
+  --purple:#a855f7;--purple-dim:rgba(168,85,247,.12);
+  --font:'Sora',sans-serif;--mono:'DM Mono',monospace;
+}
+body{padding-top:52px !important;font-family:var(--font);background:var(--bg);color:var(--text);font-size:13px;height:100vh;overflow:hidden;display:flex;flex-direction:column}
+
+/* TOP BAR */
+.top-bar{position:fixed;top:0;left:220px;right:0;z-index:50;display:flex;align-items:center;padding:0 24px;height:52px;border-bottom:1px solid var(--border);background:var(--sb);flex-shrink:0;gap:8px}
+.top-logo{font-size:11px;letter-spacing:.2em;color:var(--blue);font-weight:600;text-transform:uppercase}
+.divider{width:1px;height:20px;background:var(--border2);margin:0 4px}
+.breadcrumb{font-size:12px;color:var(--muted2);display:flex;align-items:center;gap:6px}
+.breadcrumb .crumb{cursor:pointer;color:var(--muted2)}.breadcrumb .crumb:hover{color:var(--blue)}
+.breadcrumb .sep{color:var(--muted)}
+.breadcrumb .current{color:var(--text);font-weight:500}
+.vendor-select-bar{display:flex;align-items:center;gap:8px;margin-left:auto}
+.vendor-select{background:var(--bg);border:1px solid var(--border2);color:var(--text);font-family:var(--font);font-size:12px;padding:6px 10px;border-radius:6px;outline:none;cursor:pointer}
+.vendor-select:focus{border-color:var(--blue)}
+.btn{padding:7px 14px;border-radius:6px;font-family:var(--font);font-size:12px;font-weight:500;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:6px;transition:all .15s}
+.btn-primary{background:var(--blue);color:#fff}.btn-primary:hover{background:var(--blue2)}
+.btn-outline{background:transparent;color:var(--text);border:1px solid var(--border2)}.btn-outline:hover{border-color:var(--blue);color:var(--blue)}
+.btn-danger{background:var(--red-dim);color:var(--red);border:1px solid rgba(239,68,68,.2)}.btn-danger:hover{background:rgba(239,68,68,.2)}
+.btn-success{background:var(--green-dim);color:var(--green);border:1px solid rgba(34,197,94,.2)}.btn-success:hover{background:rgba(34,197,94,.2)}
+.btn-sm{padding:5px 11px;font-size:11px;border-radius:5px}
+
+/* LAYOUT */
+#content{flex:1;overflow:hidden;display:flex}
+.left-col{width:44%;border-right:1px solid var(--border);overflow-y:auto;flex-shrink:0}
+.left-col::-webkit-scrollbar{width:3px}
+.left-col::-webkit-scrollbar-thumb{background:var(--border2)}
+.right-col{flex:1;overflow-y:auto;display:flex;flex-direction:column}
+.right-col::-webkit-scrollbar{width:3px}
+.right-col::-webkit-scrollbar-thumb{background:var(--border2)}
+
+/* LEFT COL */
+.col-head{padding:16px 20px;border-bottom:1px solid var(--border);background:var(--sb);position:sticky;top:0;z-index:5}
+.col-title{font-size:12px;font-weight:600;margin-bottom:2px}
+.col-sub{font-size:10px;color:var(--muted2)}
+.field-grid{padding:12px 20px;display:grid;grid-template-columns:140px 1fr;gap:2px 10px}
+.fg-section{grid-column:1/-1;font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:10px 0 4px;margin-top:4px;border-top:1px solid var(--border)}
+.fg-section:first-child{border-top:none;padding-top:0}
+.fl{font-size:10px;color:var(--muted2);padding:3px 0;align-self:start;padding-top:5px}
+.fv{font-size:11px;color:var(--text);padding:3px 0;word-break:break-word;white-space:normal;line-height:1.5}
+.fv.empty{color:var(--muted);font-style:italic}
+.fv.critical{color:var(--red);font-weight:500}
+.fv.warning{color:var(--amber);font-weight:500}
+.fv.good{color:var(--green)}
+
+/* RIGHT COL — UPLOAD STATE */
+.upload-section{padding:20px;border-bottom:1px solid var(--border)}
+.step-label{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.drop-zone{border:1.5px dashed var(--border2);border-radius:10px;padding:24px;text-align:center;cursor:pointer;transition:all .15s;margin-bottom:0}
+.drop-zone:hover,.drop-zone.over{border-color:var(--blue);background:var(--blue-dim)}
+.drop-icon{font-size:24px;margin-bottom:6px}
+.drop-text{font-size:12px;font-weight:500;margin-bottom:3px}
+.drop-sub{font-size:10px;color:var(--muted2)}
+.file-selected{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--card2);border:1px solid var(--border2);border-radius:8px}
+.file-icon{font-size:20px}
+.file-info{flex:1}
+.file-name{font-size:12px;font-weight:500}
+.file-size{font-size:10px;color:var(--muted2)}
+.file-remove{font-size:10px;color:var(--red);cursor:pointer;background:none;border:none;font-family:var(--font)}
+
+/* PROMPT SECTION */
+.prompt-section{padding:20px;border-bottom:1px solid var(--border)}
+.prompt-box{background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:12px;font-family:var(--mono);font-size:10px;color:var(--muted2);line-height:1.7;max-height:260px;overflow-y:auto;white-space:pre-wrap;word-break:break-word;margin-bottom:10px}
+.prompt-box::-webkit-scrollbar{width:3px}
+.prompt-box::-webkit-scrollbar-thumb{background:var(--border2)}
+.copy-btn{display:flex;align-items:center;gap:6px;padding:9px 14px;background:var(--blue-dim);color:var(--blue);border:1px solid rgba(79,124,255,.3);border-radius:7px;cursor:pointer;font-family:var(--font);font-size:12px;font-weight:500;width:100%;justify-content:center;transition:all .15s}
+.copy-btn:hover{background:rgba(79,124,255,.2)}
+.copy-instructions{font-size:10px;color:var(--muted2);line-height:1.6;margin-top:10px;padding:10px 12px;background:var(--card2);border-radius:6px;counter-reset:step}
+.copy-instructions .step::before{counter-increment:step;content:counter(step)'. ';color:var(--blue);font-weight:600}
+.copy-instructions .step{display:block;margin-bottom:3px}
+
+/* JSON PASTE SECTION */
+.json-section{padding:20px;flex:1}
+.json-area{width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--muted2);font-family:var(--mono);font-size:10px;padding:10px 12px;border-radius:8px;outline:none;resize:none;height:140px;transition:border-color .15s}
+.json-area:focus{border-color:var(--blue);color:var(--text)}
+.json-area::placeholder{color:var(--muted)}
+.validate-btn{width:100%;margin-top:10px;justify-content:center}
+.json-error{font-size:11px;color:var(--red);margin-top:8px;padding:8px 10px;background:var(--red-dim);border-radius:6px;display:none}
+.json-error.show{display:block}
+
+/* RIGHT COL — DECISION STATE */
+.decision-head{padding:16px 20px;background:var(--sb);border-bottom:1px solid var(--border);flex-shrink:0}
+.ai-summary-box{background:var(--card2);border-radius:8px;padding:12px;margin-bottom:12px;font-size:12px;color:var(--muted2);line-height:1.6}
+.ai-summary-box strong{color:var(--text)}
+.rec-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.rec-pill{padding:4px 14px;border-radius:20px;font-size:11px;font-weight:600}
+.rec-accept{background:var(--green-dim);color:var(--green);border:1px solid rgba(34,197,94,.3)}
+.rec-accept_with_edits{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(245,158,11,.3)}
+.rec-escalate{background:rgba(249,115,22,.12);color:#f97316;border:1px solid rgba(249,115,22,.3)}
+.rec-reject{background:var(--red-dim);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.confidence-bar{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted2)}
+.conf-track{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden;max-width:120px}
+.conf-fill{height:100%;background:var(--blue);border-radius:3px}
+.rec-reason{font-size:11px;color:var(--muted2);font-style:italic;margin-top:6px}
+
+/* RISKS */
+.risks-section{padding:0 20px 16px}
+.section-label{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.risk-card{background:var(--card2);border-radius:8px;padding:10px 12px;margin-bottom:8px;border-left:3px solid}
+.risk-critical{border-color:var(--red)}.risk-high{border-color:var(--amber)}.risk-medium{border-color:var(--blue)}.risk-low{border-color:var(--muted)}
+.risk-head{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.risk-badge{font-size:9px;padding:1px 7px;border-radius:10px;font-weight:600}
+.badge-critical{background:var(--red-dim);color:var(--red)}
+.badge-high{background:var(--amber-dim);color:var(--amber)}
+.badge-medium{background:var(--blue-dim);color:var(--blue)}
+.badge-low{background:rgba(90,100,144,.2);color:var(--muted2)}
+.risk-title{font-size:12px;font-weight:600}
+.risk-desc{font-size:11px;color:var(--muted2);line-height:1.5;margin-bottom:4px}
+.risk-action{font-size:10px;color:var(--text);font-style:italic}
+
+/* CHANGES */
+.changes-section{padding:0 20px 16px}
+.change-card{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;transition:border-color .15s}
+.change-card.decided{border-color:rgba(34,197,94,.2)}
+.change-card.undecided{border-color:var(--border)}
+.change-head{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border);background:var(--card2)}
+.impact-badge{font-size:9px;padding:2px 8px;border-radius:10px;font-weight:600}
+.impact-high{background:var(--red-dim);color:var(--red)}
+.impact-medium{background:var(--amber-dim);color:var(--amber)}
+.impact-low{background:rgba(90,100,144,.2);color:var(--muted2)}
+.change-type-badge{font-size:9px;padding:1px 7px;border-radius:10px;font-weight:500}
+.type-updated{background:var(--blue-dim);color:var(--blue)}
+.type-added{background:var(--green-dim);color:var(--green)}
+.type-removed{background:var(--red-dim);color:var(--red)}
+.type-conflict{background:var(--red-dim);color:var(--red)}
+.field-label{font-size:12px;font-weight:600}
+.required-badge{margin-left:auto;font-size:9px;padding:2px 7px;border-radius:4px;background:rgba(249,115,22,.15);color:#f97316;font-weight:500}
+.change-body{padding:12px 14px}
+.values-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.val-box{background:var(--card2);border-radius:6px;padding:8px 10px}
+.val-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;font-weight:500}
+.val-current{font-size:12px;color:var(--muted2)}
+.val-proposed{font-size:12px;color:var(--green);font-weight:500}
+.val-removed{font-size:12px;color:var(--red);text-decoration:line-through}
+.impact-reason{font-size:11px;color:var(--muted2);font-style:italic;margin-bottom:12px;padding:6px 10px;background:var(--card3);border-radius:5px;border-left:2px solid var(--border2)}
+.decision-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.decision-row label{display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;padding:5px 10px;border-radius:6px;border:1px solid var(--border2);transition:all .15s;color:var(--muted2)}
+.decision-row label:hover{border-color:var(--blue);color:var(--text)}
+.decision-row input[type=radio]{accent-color:var(--blue);cursor:pointer}
+.decision-row label.selected-accept{background:var(--green-dim);border-color:rgba(34,197,94,.3);color:var(--green)}
+.decision-row label.selected-keep{background:rgba(90,100,144,.12);border-color:var(--border2);color:var(--muted2)}
+.decision-row label.selected-custom{background:var(--blue-dim);border-color:rgba(79,124,255,.3);color:var(--blue)}
+.custom-input{margin-top:8px;width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);font-family:var(--font);font-size:12px;padding:7px 10px;border-radius:6px;outline:none}
+.custom-input:focus{border-color:var(--blue)}
+.note-input{width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);font-family:var(--font);font-size:11px;padding:7px 10px;border-radius:6px;outline:none;margin-top:8px;resize:vertical;min-height:48px}
+.note-input:focus{border-color:var(--border)}
+.note-input::placeholder{color:var(--muted)}
+
+/* FINALIZE */
+.finalize-bar{padding:16px 20px;border-top:1px solid var(--border);background:var(--sb);flex-shrink:0}
+.finalize-note-area{margin-bottom:12px}
+.finalize-note{width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);font-family:var(--font);font-size:12px;padding:9px 11px;border-radius:7px;outline:none;resize:none;height:56px}
+.finalize-note:focus{border-color:var(--blue)}
+.finalize-note::placeholder{color:var(--muted)}
+.finalize-actions{display:flex;gap:8px;align-items:center}
+.finalize-progress{font-size:11px;color:var(--muted2)}
+.finalize-progress strong{color:var(--text)}
+.btn-finalize{padding:9px 20px;font-size:13px;border-radius:7px;font-weight:600}
+.btn-finalize:disabled{opacity:.4;cursor:not-allowed}
+
+/* TOAST */
+#toast{position:fixed;bottom:24px;right:24px;padding:10px 18px;border-radius:8px;font-size:12px;color:#fff;opacity:0;transform:translateY(8px);transition:all .2s;pointer-events:none;z-index:9999;font-weight:500}
+#toast.show{opacity:1;transform:translateY(0)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.anim{animation:fadeIn .2s ease both}
+
+/* ── VCIS SHARED SIDEBAR ─────────────────────────────────────── */
+#vcis-sidebar{position:fixed;top:0;left:0;width:220px;height:100vh;background:#0f1221;border-right:1px solid #1e2444;display:flex;flex-direction:column;z-index:100;overflow:hidden;font-family:'Sora',sans-serif}
+#vcis-sidebar .sb-logo{padding:16px;border-bottom:1px solid #1e2444;display:flex;align-items:center;gap:8px;text-decoration:none}
+#vcis-sidebar .sb-mark{width:30px;height:30px;background:rgba(79,124,255,.12);border:1px solid rgba(79,124,255,.3);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#4f7cff;flex-shrink:0}
+#vcis-sidebar .sb-name{font-size:13px;font-weight:700;color:#e8ecf8}
+#vcis-sidebar .sb-sub{font-size:9px;color:#5a6490;letter-spacing:.06em;text-transform:uppercase}
+#vcis-sidebar .sb-ai{font-size:9px;padding:2px 7px;border-radius:10px;border:1px solid #1e2444;display:flex;align-items:center;gap:4px;margin-left:auto}
+#vcis-sidebar nav{flex:1;overflow-y:auto;padding:6px 0}
+#vcis-sidebar nav::-webkit-scrollbar{width:3px}
+#vcis-sidebar nav::-webkit-scrollbar-thumb{background:#252b4f}
+#vcis-sidebar .nav-sec{padding:8px 16px 3px;font-size:9px;color:#5a6490;letter-spacing:.1em;text-transform:uppercase;font-weight:600}
+#vcis-sidebar a.nav-item{display:flex;align-items:center;gap:9px;padding:7px 16px;border-left:2px solid transparent;color:#7a85b0;font-size:12px;text-decoration:none;transition:all .12s;white-space:nowrap;overflow:hidden}
+#vcis-sidebar a.nav-item:hover{background:rgba(255,255,255,.03);color:#e8ecf8}
+#vcis-sidebar a.nav-item.active{color:#4f7cff;border-left-color:#4f7cff;background:rgba(79,124,255,.12);font-weight:500}
+#vcis-sidebar a.nav-item svg{width:15px;height:15px;flex-shrink:0;opacity:.7}
+#vcis-sidebar a.nav-item.active svg,#vcis-sidebar a.nav-item:hover svg{opacity:1}
+#vcis-sidebar .nb{margin-left:auto;font-size:9px;padding:1px 6px;border-radius:10px;font-weight:600;flex-shrink:0}
+#vcis-sidebar .nb-red{background:rgba(239,68,68,.12);color:#ef4444}
+#vcis-sidebar .nb-amber{background:rgba(245,158,11,.12);color:#f59e0b}
+#vcis-sidebar .sb-foot{padding:11px 16px;border-top:1px solid #1e2444;display:flex;align-items:center;gap:8px}
+#vcis-sidebar .sb-av{width:28px;height:28px;border-radius:50%;background:rgba(79,124,255,.12);border:1px solid rgba(79,124,255,.3);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#4f7cff;flex-shrink:0}
+#vcis-sidebar .sb-un{font-size:11px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#e8ecf8}
+#vcis-sidebar .sb-ur{font-size:9px;color:#5a6490}
+#vcis-sidebar .sb-cfg{font-size:11px;color:#5a6490;padding:3px 7px;border-radius:3px;border:1px solid #1e2444;text-decoration:none;flex-shrink:0}
+#vcis-sidebar .sb-cfg:hover{color:#4f7cff;border-color:#4f7cff}
+body{margin-left:220px !important}
+</style>
+<script src="../shared/data.js"></script>
+<script>
+// Session guard — redirect to login if not authenticated
+(function() {
+  var s = null;
+  try { s = JSON.parse(localStorage.getItem('vcis_session') || 'null'); } catch(e) {}
+  if (!s || (Date.now() - s.ts > 8 * 60 * 60 * 1000)) {
+    window.location.href = '01-dashboard.html';
+  }
+})();
+</script>
+</head>
+<body>
+<div id="vcis-sidebar">
+  <a href="01-dashboard.html" class="sb-logo">
+    <div class="sb-mark">VC</div>
+    <div style="flex:1"><div class="sb-name">VCIS</div><div class="sb-sub">Contract Intel</div></div>
+    <div class="sb-ai"><span id="sb-ai-dot" style="width:5px;height:5px;border-radius:50%;background:#5a6490;display:inline-block"></span>&nbsp;<span id="sb-ai-lbl" style="color:#5a6490">AI</span></div>
+  </a>
+  <nav><div class="nav-sec">Main</div>
+<a href="01-dashboard.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
+<a href="02-vendor-database.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4.03 3 9 3s9-1.34 9-3"/></svg>Vendor Database</a>
+<a href="03-addendum-review.html" class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Addendum Review<span class="nb nb-red">2</span></a>
+<div class="nav-sec">Pipeline</div>
+<a href="04-itw.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>In The Works</a>
+<a href="05-reviews.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Reviews &amp; Tasks</a>
+<div class="nav-sec">Schedule</div>
+<a href="06-calendar.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Calendar</a>
+<a href="07-forecast.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>Forecast</a>
+<div class="nav-sec">Insights</div>
+<a href="08-analytics.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>Analytics</a>
+<a href="09-audit.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>History &amp; Audit</a>
+<a href="10-datacheck.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Data Check<span class="nb nb-amber">7</span></a>
+</nav>
+  <div class="sb-foot">
+    <div class="sb-av" id="sb-av">U</div>
+    <div style="flex:1;min-width:0"><div class="sb-un" id="sb-un">User</div><div class="sb-ur" id="sb-ur">Viewer</div></div>
+    <a href="11-settings.html" class="sb-cfg" title="Settings">&#9881;</a>
+  </div>
+</div>
+<script>
+(function(){
+  try{var u=JSON.parse(localStorage.getItem('vcis_user')||'{}');if(u.name)document.getElementById('sb-un').textContent=u.name;if(u.role)document.getElementById('sb-ur').textContent=u.role;if(u.initials)document.getElementById('sb-av').textContent=u.initials;}catch(e){}
+  var k=localStorage.getItem('vcis_groq_key');
+  var d=document.getElementById('sb-ai-dot');var l=document.getElementById('sb-ai-lbl');
+  if(k&&d&&l){d.style.background='#22c55e';l.style.color='#22c55e';l.textContent='AI on';}
+})();
+</script>
+
+
+<div class="top-bar">
+  <span class="top-logo">VCIS</span>
+  <div class="divider"></div>
+  <div class="breadcrumb">
+    <span class="crumb">Dashboard</span>
+    <span class="sep">›</span>
+    <span class="current">Addendum Review</span>
+  </div>
+  <div class="vendor-select-bar">
+    <span style="font-size:11px;color:var(--muted2)">Reviewing:</span>
+    <select class="vendor-select" id="vendor-select" onchange="switchVendor()">
+      <option value="v1">Acme Medical Supply</option>
+      <option value="v4" selected>BrightHR Systems ⚠</option>
+      <option value="v2">TechStart Solutions</option>
+      <option value="v6">Vertex Pharmaceuticals</option>
+    </select>
+  </div>
+</div>
+
+<div id="content">
+  <!-- LEFT COL — always shows current vendor data -->
+  <div class="left-col">
+    <div class="col-head">
+      <div class="col-title" id="left-title">Select a vendor to begin</div>
+      <div class="col-sub">All fields as currently stored in the system</div>
+    </div>
+    <div class="field-grid" id="field-grid"><!-- filled by JS --></div>
+  </div>
+
+  <!-- RIGHT COL — state A/B/C -->
+  <div class="right-col" id="right-col"><!-- filled by JS --></div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+'use strict';
+
+// ── Load vendors from localStorage ─────────────────────────────
+// Vendor loading handled by VCIS.vendors
+
+// Build vendor map from array for quick lookup by id
+function buildVendorMap() {
+  const arr = VCIS.vendors.getAll();
+  const map = {};
+  arr.forEach(v => { map[v.id] = v; });
+  return map;
+}
+
+// Populate the vendor selector with real vendors
+function populateVendorSelect() {
+  const sel = document.getElementById('vendor-select');
+  if (!sel) return;
+  const vendors = VCIS.vendors.getAll();
+  sel.innerHTML = '';
+  if (vendors.length === 0) {
+    sel.innerHTML = '<option value="">— No vendors in database —</option>';
+    return;
+  }
+  vendors.forEach(v => {
+    const opt = document.createElement('option');
+    opt.value = v.id;
+    opt.textContent = v.name + (v.status === 'Critical' ? ' ⚠' : '');
+    sel.appendChild(opt);
+  });
+}
+
+let VENDORS = buildVendorMap();
+
+
+// SAMPLE_JSON removed — real vendor data loaded from localStorage
+const SAMPLE_JSON = null;
+
+
+let currentVendorId = '';
+let appState = 'upload';
+let currentReviewId = null;
+let uploadedFileName = null; // 'upload' | 'decision'
+let decisions = {}; // field_name -> { decision, customValue, note }
+
+function getVendor() {
+  VENDORS = buildVendorMap();
+  return VENDORS[currentVendorId] || null;
+}
+
+// ── Render Left Column ────────────────────────────────────────────────────────
+function renderLeft() {
+  const v = getVendor();
+  document.getElementById('left-title').textContent = 'Current Record — ' + v.name;
+  const fg = document.getElementById('field-grid');
+  fg.innerHTML = '';
+
+  const sections = [
+    { label:'Contract', fields:[
+      ['Contract No.', v.contractNo],['Agreement Type', v.agreementType],
+      ['Effective Date', v.effectiveDate],
+      ['Expiry Date', v.expiry, v.daysToExpiry<=30?'critical':v.daysToExpiry<=90?'warning':''],
+      ['Days to Expiry', v.daysToExpiry+'d', v.daysToExpiry<=7?'critical':v.daysToExpiry<=30?'warning':''],
+      ['Contract Term', v.contractTerm],['Current Term', v.currentTerm],['Status', v.status],
+    ]},
+    { label:'Renewal', fields:[
+      ['Auto-Renew', v.autoRenew],['Auto-Renew Type', v.autoRenewType||'—'],
+      ['Termination Notice', v.terminationNotice],
+    ]},
+    { label:'Financial', fields:[
+      ['Admin Fee', v.adminFee,'warning'],['Admin Fee Notes', v.adminFeeNotes||'—'],
+      ['Tiers', v.tiers||'—'],['GPO', v.gpo||'—'],
+    ]},
+    { label:'Legal', fields:[
+      ['Exclusivity', v.exclusivity],['Assignment', v.assignment],
+      ['Perpetuity', v.perpetuity],['Tail Clause', v.tail],
+    ]},
+    { label:'Contacts', fields:[
+      ['Primary Contact', v.procContact],['Title', v.title],
+      ['Phone', v.bizPhone],['Mobile', v.mobile],['Email', v.email],
+      ['Contact 2', v.shared2||'—'],['Title 2', v.title2||'—'],
+      ['Email 2', v.email2||'—'],
+    ]},
+    { label:'Vendor Info', fields:[
+      ['Category', v.category],['Tier', v.tier],['Markets', v.markets],
+      ['Class of Trade', v.classOfTrade],['Website', v.website],
+    ]},
+    { label:'Activity', fields:[
+      ['Last Communication', v.lastComm],['Follow-up Due', v.followUp],
+    ]},
+  ];
+
+  sections.forEach(sec => {
+    const secEl = document.createElement('div');
+    secEl.className = 'fg-section';
+    secEl.textContent = sec.label;
+    fg.appendChild(secEl);
+    sec.fields.forEach(([lbl, val, cls]) => {
+      const l = document.createElement('div'); l.className='fl'; l.textContent=lbl;
+      const vEl = document.createElement('div');
+      vEl.className='fv'+(cls?' '+cls:'')+((!val||val==='—')?' empty':'');
+      vEl.textContent = val||'— not set —';
+      fg.appendChild(l); fg.appendChild(vEl);
+    });
+  });
+}
+
+// ── Render Right: Upload State ─────────────────────────────────────────────
+function renderUploadState() {
+  const v = getVendor();
+  const rc = document.getElementById('right-col');
+  rc.innerHTML = '';
+
+  // Step 1 — Upload
+  const s1 = div('upload-section anim');
+  s1.innerHTML = `
+    <div class="step-label">Step 1 — Upload Addendum File</div>
+    <div class="drop-zone" id="drop-zone" onclick="simulateFileUpload()" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')">
+      <div class="drop-icon">📎</div>
+      <div class="drop-text">Drop addendum file here or click to browse</div>
+      <div class="drop-sub">Accepts PDF, Excel (.xlsx, .xlsm), Word (.docx)</div>
+    </div>
+    <div id="file-display" style="display:none" class="file-selected">
+      <span class="file-icon">📄</span>
+      <div class="file-info"><div class="file-name" id="f-name"></div><div class="file-size" id="f-size"></div></div>
+      <button class="file-remove" onclick="removeFile()">✕ Remove</button>
+    </div>`;
+  rc.appendChild(s1);
+
+  // Step 2 — Prompt
+  const v2 = getVendor();
+  const promptText = buildPrompt(v2);
+  const s2 = div('prompt-section anim');
+  s2.innerHTML = `
+    <div class="step-label">Step 2 — AI Analysis Prompt</div>
+    <div style="font-size:11px;color:var(--muted2);margin-bottom:10px;line-height:1.6">Copy this prompt and paste it into your AI tool (ChatGPT, Claude, Gemini, etc.) along with the addendum file you uploaded above.</div>
+    <div class="prompt-box" id="prompt-box">${escHtml(promptText)}</div>
+    <button class="copy-btn" id="copy-btn" onclick="copyPrompt()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      Copy Prompt + Vendor Data
+    </button>
+    <div class="copy-instructions">
+      <span class="step">Open your AI tool (ChatGPT, Claude, Gemini, etc.)</span>
+      <span class="step">Paste the copied prompt into the message box</span>
+      <span class="step">Attach the addendum file you selected above</span>
+      <span class="step">Send the message and wait for the JSON response</span>
+      <span class="step">Copy the entire JSON response</span>
+      <span class="step">Paste it in Step 3 below and click Validate</span>
+    </div>`;
+  rc.appendChild(s2);
+
+  // Step 3 — JSON Paste
+  const s3 = div('json-section anim');
+  s3.innerHTML = `
+    <div class="step-label">Step 3 — Paste AI Analysis Result (JSON)</div>
+    <div style="font-size:11px;color:var(--muted2);margin-bottom:10px">Paste the JSON returned by your AI tool here. The system will validate it and load the Human Decision Tool.</div>
+    <textarea class="json-area" id="json-area" placeholder='{ "vendor_name": "...", "addendum_summary": "...", "changes": [...], "risks": [...] }'></textarea>
+    <div class="json-error" id="json-error">Invalid JSON. Please check the format and try again.</div>
+    <button class="btn btn-primary validate-btn" onclick="validateJSON()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+      Validate & Load Decision Tool
+    </button>
+    <div style="margin-top:12px;text-align:center">
+      <button class="btn btn-outline btn-sm" onclick="loadSampleJSON()" style="font-size:10px">
+        ↺ Load Sample Analysis (demo)
+      </button>
+    </div>`;
+  rc.appendChild(s3);
+}
+
+// ── Render Right: Decision State ──────────────────────────────────────────
+function renderDecisionState(analysisData) {
+  const rc = document.getElementById('right-col');
+  rc.innerHTML = '';
+  decisions = {};
+
+  // Header
+  const dhead = div('decision-head anim');
+  const recClass = 'rec-' + (analysisData.overall_recommendation||'accept');
+  const recLabel = {accept:'✓ Accept',accept_with_edits:'⚠ Accept with Edits',escalate:'↑ Escalate for Review',reject:'✕ Reject'}[analysisData.overall_recommendation]||'Accept';
+  const conf = Math.round((analysisData.confidence_score||0.8)*100);
+  dhead.innerHTML = `
+    <div class="col-title" style="margin-bottom:10px">AI Analysis — ${getVendor().name}</div>
+    <div class="ai-summary-box">${analysisData.addendum_summary}</div>
+    <div class="rec-row">
+      <span class="rec-pill ${recClass}">${recLabel}</span>
+      <div class="confidence-bar">
+        <span>AI Confidence:</span>
+        <div class="conf-track"><div class="conf-fill" style="width:${conf}%"></div></div>
+        <strong style="color:var(--text)">${conf}%</strong>
+      </div>
+    </div>
+    ${analysisData.recommendation_reason?`<div class="rec-reason">"${analysisData.recommendation_reason}"</div>`:''}`;
+  rc.appendChild(dhead);
+
+  // Risks
+  if (analysisData.risks && analysisData.risks.length) {
+    const riskSec = div('risks-section anim');
+    riskSec.innerHTML = `<div class="section-label" style="margin-top:16px">Flagged Risks (${analysisData.risks.length})</div>`;
+    analysisData.risks.forEach(r => {
+      const card = div('risk-card risk-'+r.severity);
+      card.innerHTML = `
+        <div class="risk-head">
+          <span class="risk-badge badge-${r.severity}">${r.severity.toUpperCase()}</span>
+          <span class="risk-title">${r.risk_title}</span>
+        </div>
+        <div class="risk-desc">${r.risk_description}</div>
+        <div class="risk-action">→ ${r.recommended_action}</div>`;
+      riskSec.appendChild(card);
+    });
+    rc.appendChild(riskSec);
+  }
+
+  // Changes
+  const requiredFields = analysisData.changes.filter(c=>c.requires_human_review);
+  const changeSec = div('changes-section anim');
+  changeSec.innerHTML = `<div class="section-label">Field-by-Field Changes — Your Decisions <span style="font-weight:400;color:var(--muted2)">(${analysisData.changes.length} changes, ${requiredFields.length} require decision)</span></div>`;
+
+  analysisData.changes.forEach((ch, idx) => {
+    decisions[ch.field_name] = { decision: null, customValue:'', note:'' };
+    const card = div('change-card undecided');
+    card.id = 'change-'+idx;
+    card.innerHTML = `
+      <div class="change-head">
+        <span class="impact-badge impact-${ch.impact}">${ch.impact} impact</span>
+        <span class="change-type-badge type-${ch.change_type}">${ch.change_type}</span>
+        <span class="field-label">${ch.field_label}</span>
+        ${ch.requires_human_review?'<span class="required-badge">Review Required</span>':''}
+      </div>
+      <div class="change-body">
+        <div class="values-row">
+          <div class="val-box">
+            <div class="val-label">Current value</div>
+            <div class="val-current">${ch.current_value||'— not set —'}</div>
+          </div>
+          <div class="val-box" style="border:1px solid ${ch.change_type==='removed'?'rgba(239,68,68,.2)':ch.change_type==='added'?'rgba(34,197,94,.2)':'rgba(79,124,255,.2)'}">
+            <div class="val-label">Proposed value</div>
+            <div class="val-${ch.change_type==='removed'?'removed':'proposed'}">${ch.proposed_value||'— removed —'}</div>
+          </div>
+        </div>
+        <div class="impact-reason">${ch.impact_reason}</div>
+        <div class="decision-row" id="dec-row-${idx}">
+          <label id="lbl-accept-${idx}"><input type="radio" name="dec-${idx}" value="accept" onchange="setDecision(${idx},'${ch.field_name}','accept')"> Accept proposed</label>
+          <label id="lbl-keep-${idx}"><input type="radio" name="dec-${idx}" value="keep" onchange="setDecision(${idx},'${ch.field_name}','keep')"> Keep current</label>
+          <label id="lbl-custom-${idx}"><input type="radio" name="dec-${idx}" value="custom" onchange="setDecision(${idx},'${ch.field_name}','custom')"> Enter custom</label>
+        </div>
+        <div id="custom-area-${idx}" style="display:none">
+          <input class="custom-input" placeholder="Enter custom value..." oninput="decisions['${ch.field_name}'].customValue=this.value">
+        </div>
+        <textarea class="note-input" placeholder="Add a decision note (optional)..." oninput="decisions['${ch.field_name}'].note=this.value"></textarea>
+      </div>`;
+    changeSec.appendChild(card);
+  });
+  rc.appendChild(changeSec);
+
+  // Finalize bar
+  const finBar = div('finalize-bar');
+  finBar.innerHTML = `
+    <div class="finalize-note-area">
+      <textarea class="finalize-note" placeholder="Overall review note (optional) — add any comments about this addendum review decision..."></textarea>
+    </div>
+    <div class="finalize-actions">
+      <span class="finalize-progress" id="fin-progress"><strong>0</strong> of <strong>${requiredFields.length}</strong> required decisions made</span>
+      <button class="btn btn-danger btn-sm" onclick="discardReview()" style="margin-left:auto">✕ Discard</button>
+      <button class="btn btn-outline btn-sm" onclick="saveDraft()">Save Draft</button>
+      <button class="btn btn-primary btn-finalize btn-sm" id="finalize-btn" onclick="finalizeReview()" disabled>✓ Finalize & Update Record</button>
+    </div>`;
+  rc.appendChild(finBar);
+  updateFinalizeProgress(analysisData.changes);
+}
+
+// ── Decision Logic ─────────────────────────────────────────────────────────
+function setDecision(idx, fieldName, decision) {
+  decisions[fieldName].decision = decision;
+  const labels = ['accept','keep','custom'];
+  labels.forEach(d => {
+    const lbl = document.getElementById(`lbl-${d}-${idx}`);
+    if (lbl) { lbl.className = decision===d?`selected-${d}`:''; }
+  });
+  const customArea = document.getElementById(`custom-area-${idx}`);
+  if (customArea) customArea.style.display = decision==='custom'?'block':'none';
+  const card = document.getElementById('change-'+idx);
+  if (card) { card.classList.toggle('decided', true); card.classList.toggle('undecided', false); }
+  updateFinalizeProgress(currentAnalysis ? currentAnalysis.changes : []);
+}
+
+function updateFinalizeProgress(changes) {
+  const required = changes.filter(c=>c.requires_human_review);
+  const decided = required.filter(c=>decisions[c.field_name]&&decisions[c.field_name].decision!==null).length;
+  const el = document.getElementById('fin-progress');
+  if (el) el.innerHTML = `<strong>${decided}</strong> of <strong>${required.length}</strong> required decisions made`;
+  const btn = document.getElementById('finalize-btn');
+  if (btn) btn.disabled = decided < required.length;
+}
+
+let currentAnalysis = null;
+
+function validateJSON() {
+  const raw = document.getElementById('json-area').value.trim();
+  const errEl = document.getElementById('json-error');
+  if (!raw) { showError('Please paste the JSON from your AI tool first.'); return; }
+  try {
+    const data = JSON.parse(raw);
+    const required = ['vendor_name','addendum_summary','overall_recommendation','changes','risks'];
+    const missing = required.filter(k=>!(k in data));
+    if (missing.length) { showError('Missing required keys: ' + missing.join(', ')); return; }
+    errEl.classList.remove('show');
+    currentAnalysis = data;
+    appState = 'decision';
+    renderDecisionState(data);
+    VCIS.toast('Analysis loaded — make your decisions below','#22c55e');
+  } catch(e) { showError('Invalid JSON. Check the format — make sure it starts with { and ends with }'); }
+}
+
+function showError(msg) {
+  const errEl = document.getElementById('json-error');
+  if (errEl) { errEl.textContent=msg; errEl.classList.add('show'); }
+}
+
+function loadSampleJSON() {
+  document.getElementById('json-area').value = JSON.stringify(SAMPLE_JSON, null, 2);
+  VCIS.toast('Sample analysis loaded. Click Validate to continue.','#4f7cff');
+  simulateFileUpload();
+}
+
+function finalizeReview() {
+  if (!currentAnalysis) { VCIS.VCIS.toast('No analysis loaded','#ef4444'); return; }
+  const vendor = getVendor();
+  if (!vendor) { VCIS.VCIS.toast('Vendor not found','#ef4444'); return; }
+
+  // Collect all decisions
+  const decisionMap = {};
+  (currentAnalysis.changes || []).forEach((ch, idx) => {
+    decisionMap[ch.field_name] = decisions[ch.field_name] || { decision: null };
+  });
+
+  const overallNote = document.querySelector('.finalize-note')?.value || '';
+
+  // Create addendum record if not exists, then finalize
+  let reviewId = currentReviewId;
+  if (!reviewId) {
+    // Create the review record first
+    const rev = VCIS.addendums.create(currentVendorId, vendor.name, uploadedFileName || 'addendum.pdf');
+    reviewId = rev.id;
+    currentReviewId = reviewId;
+    VCIS.addendums.saveAnalysis(reviewId, currentAnalysis);
+  }
+
+  const result = VCIS.addendums.finalize(reviewId, decisionMap, overallNote);
+
+  if (!result.ok) {
+    VCIS.VCIS.toast('Error finalizing: ' + result.error, '#ef4444');
+    return;
+  }
+
+  VCIS.VCIS.toast('✓ ' + result.changeCount + ' field(s) updated. Vendor record saved.', '#22c55e');
+
+  // Offer calendar event if AI suggested one
+  setTimeout(() => {
+    if (currentAnalysis.suggested_calendar_event) {
+      const ev = currentAnalysis.suggested_calendar_event;
+      if (confirm('Aria suggests scheduling:\n"' + ev.title + '" on ' + ev.date + '\n\nReason: ' + ev.reason + '\n\nAdd to calendar?')) {
+        VCIS.events.add({ title: ev.title, date: ev.suggested_date || ev.date, type: 'meeting', vendor: vendor.name, time: 'All day', notes: ev.reason, auto: false });
+        VCIS.addendums.saveDecisions(currentReviewId, decisionMap, overallNote); // mark cal added
+        VCIS.VCIS.toast('Calendar event added','#4f7cff');
+      }
+    }
+    // Reset UI
+    appState = 'upload'; currentAnalysis = null; decisions = {}; currentReviewId = null; uploadedFileName = null;
+    renderUploadState();
+  }, 600);
+}
+
+
+function saveDraft() {
+  if (!currentAnalysis || !currentVendorId) { VCIS.VCIS.toast('Nothing to save yet','#5a6490'); return; }
+  const vendor = getVendor();
+  if (!vendor) return;
+  if (!currentReviewId) {
+    const rev = VCIS.addendums.create(currentVendorId, vendor.name, uploadedFileName||'addendum.pdf');
+    currentReviewId = rev.id;
+  }
+  VCIS.addendums.saveAnalysis(currentReviewId, currentAnalysis);
+  VCIS.addendums.saveDecisions(currentReviewId, decisions, document.querySelector('.finalize-note')?.value||'');
+  VCIS.VCIS.toast('Draft saved — you can return to complete this review','#f59e0b');
+}
+function discardReview() {
+  if (confirm('Discard this review? All decisions will be lost.')) {
+    if(currentReviewId) VCIS.addendums.discard(currentReviewId);
+    appState='upload'; currentAnalysis=null; decisions={}; currentReviewId=null; uploadedFileName=null;
+    renderUploadState();
+    VCIS.toast('Review discarded','#ef4444');
+  }
+}
+
+// ── File Upload Simulation ─────────────────────────────────────────────────
+function simulateFileUpload() {
+  const dz = document.getElementById('drop-zone');
+  const fd = document.getElementById('file-display');
+  if (!dz||!fd) return;
+  dz.style.display='none';
+  fd.style.display='flex';
+  uploadedFileName = 'addendum_document.pdf';
+document.getElementById('f-name').textContent=uploadedFileName;
+  document.getElementById('f-size').textContent='PDF document';
+}
+function removeFile() {
+  const dz=document.getElementById('drop-zone'); const fd=document.getElementById('file-display');
+  if(dz) dz.style.display='block'; if(fd) fd.style.display='none';
+}
+
+// ── Copy Prompt ─────────────────────────────────────────────────────────────
+function copyPrompt() {
+  const v = getVendor();
+  const text = buildPrompt(v);
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copy-btn');
+    if (btn) { btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copied!'; btn.style.background='rgba(34,197,94,.15)'; btn.style.color='var(--green)'; btn.style.borderColor='rgba(34,197,94,.3)'; setTimeout(()=>{ btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy Prompt + Vendor Data'; btn.style.background=''; btn.style.color=''; btn.style.borderColor=''; }, 2000); }
+  }).catch(() => VCIS.toast('Copy failed — please select and copy the prompt manually','#ef4444'));
+}
+
+function buildPrompt(v) {
+  return `You are an expert contract analyst. I am giving you:
+1. The current vendor record from our system (below)
+2. An addendum document (uploaded separately)
+
+Your job is to compare them and return ONLY a valid JSON object.
+Do not return any explanation, markdown, or text outside the JSON.
+
+CURRENT VENDOR RECORD:
+Vendor Name: ${v.name}
+Company: ${v.company}
+Category: ${v.category}
+Contract Number: ${v.contractNo}
+Agreement Type: ${v.agreementType}
+Effective Date: ${v.effectiveDate}
+Current Expiry Date: ${v.expiry}
+Auto-Renew: ${v.autoRenew}
+Auto-Renew Type: ${v.autoRenewType||'N/A'}
+Termination Notice: ${v.terminationNotice}
+Contract Term: ${v.contractTerm}
+Current Term: ${v.currentTerm}
+Admin Fee: ${v.adminFee}
+Admin Fee Notes: ${v.adminFeeNotes||'N/A'}
+Tiers: ${v.tiers||'N/A'}
+Exclusivity: ${v.exclusivity}
+Assignment: ${v.assignment}
+Perpetuity: ${v.perpetuity}
+Tail Clause: ${v.tail}
+GPO: ${v.gpo||'N/A'}
+Markets: ${v.markets}
+Class of Trade: ${v.classOfTrade}
+Status: ${v.status}
+
+ADDENDUM DOCUMENT: [attach the addendum file to this message]
+
+INSTRUCTIONS:
+Compare the addendum to the current record above.
+For every field that the addendum changes, conflicts with, or clarifies,
+include it in the "changes" array.
+For every risk or concern you identify, include it in "risks".
+Return ONLY this exact JSON structure, fully populated:
+
+{
+  "vendor_name": "${v.name}",
+  "addendum_summary": "[2-3 sentence plain English summary of what this addendum does]",
+  "overall_recommendation": "accept" | "accept_with_edits" | "escalate" | "reject",
+  "recommendation_reason": "[1-2 sentences explaining your recommendation]",
+  "confidence_score": [0.0 to 1.0],
+  "changes": [
+    {
+      "field_name": "[field name from record above]",
+      "field_label": "[human-readable label]",
+      "current_value": "[current value or null]",
+      "proposed_value": "[new value from addendum]",
+      "change_type": "updated" | "added" | "removed" | "conflict",
+      "impact": "high" | "medium" | "low",
+      "impact_reason": "[why this change matters]",
+      "requires_human_review": true | false
+    }
+  ],
+  "risks": [
+    {
+      "risk_title": "[short title]",
+      "risk_description": "[1-2 sentences]",
+      "severity": "critical" | "high" | "medium" | "low",
+      "recommended_action": "[what to do]"
+    }
+  ],
+  "fields_not_in_addendum": ["list", "of", "unchanged", "fields"],
+  "suggested_follow_up_date": "[ISO date or null]",
+  "suggested_calendar_event": {
+    "title": "[event title]",
+    "date": "[ISO date]",
+    "reason": "[why]"
+  }
+}
+
+Return ONLY the JSON. No explanation before or after it.`;
+}
+
+// ── Switch Vendor ──────────────────────────────────────────────────────────
+function switchVendor() {
+  const sel = document.getElementById('vendor-select');
+  currentVendorId = sel.value;
+  if (!currentVendorId) return;
+  appState = 'upload'; currentAnalysis = null; decisions = {};
+  renderLeft();
+  renderUploadState();
+}
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+function div(cls, tag='div') { const e=document.createElement(tag); if(cls)e.className=cls; return e; }
+function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function VCIS.toast(msg, color='#4f7cff') {
+  const t=document.getElementById('toast'); t.textContent=msg; t.style.background=color;
+  t.classList.add('show'); clearTimeout(t._tid); t._tid=setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────
+populateVendorSelect();
+const firstVendor = VCIS.vendors.getAll()[0];
+if (firstVendor) { currentVendorId = firstVendor.id; renderLeft(); renderUploadState(); } else { document.getElementById('right-col').innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted)">No vendors in database yet.<br><a href="02-vendor-database.html" style="color:var(--blue)">Go to Vendor Database →</a></div>'; }
+</script>
+</body>
+</html>
