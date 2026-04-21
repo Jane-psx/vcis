@@ -358,7 +358,7 @@ async function testGroqKey() {
   statusEl.innerHTML = '<span class="gs-testing">⟳ Testing...</span>';
   try {
     GROQ.setKey(key);
-    await GROQ.call('{"test":true}', 'Respond with {"ok":true}');
+    await GROQ.call('{"test":true}', 'Respond with valid json only. Return: {"ok":true}');
     statusEl.innerHTML = '<span class="gs-ok">✓ Key valid — Groq connected</span>';
   } catch(e) {
     GROQ.setKey('');

@@ -63,8 +63,8 @@ const GROQ = (() => {
   /* ── Test connection ──────────────────────────────────────────────── */
   async function test() {
     return call({
-      prompt: 'Reply with {"ok":true,"model":"working"}',
-      system: 'Respond with valid JSON only.',
+      prompt: 'Return this json object exactly: {"ok":true,"model":"working"}',
+      system: 'You are a json API. Always respond with valid json objects only.',
       maxTokens: 20,
     });
   }

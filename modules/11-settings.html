@@ -302,8 +302,8 @@ async function testKey() {
         temperature: 0,
         response_format: { type: 'json_object' },
         messages: [
-          { role: 'system', content: 'Respond with {"ok":true}' },
-          { role: 'user',   content: 'ping' }
+          { role: "system", content: "You are a json API. Always respond with valid json." },
+          { role: 'user', content: 'Return this json object: {"ok":true,"connected":true}' }
         ]
       })
     });
