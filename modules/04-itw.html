@@ -87,7 +87,7 @@ body{padding-top:52px !important;font-family:var(--font);background:var(--bg);co
 #modal-bg.open{display:flex}
 .modal{background:var(--card);border:1px solid var(--border2);border-radius:12px;width:440px;max-height:85vh;overflow-y:auto}
 .mh{padding:16px 20px 13px;border-bottom:1px solid var(--border)}.mt{font-size:14px;font-weight:600;margin-bottom:2px}.ms{font-size:11px;color:var(--muted2)}
-.mb{padding:16px 20px}.mf{padding:11px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:7px}
+.mb{padding:16px 20px}.mf{padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:7px}
 .field{margin-bottom:12px}.field label{display:block;font-size:10px;color:var(--muted2);margin-bottom:4px;font-weight:500;text-transform:uppercase;letter-spacing:.03em}
 .inp{width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);font-family:var(--font);font-size:12px;padding:7px 10px;border-radius:6px;outline:none}
 .inp:focus{border-color:var(--blue)}.inp::placeholder{color:var(--muted)}
@@ -171,18 +171,18 @@ body{margin-left:220px !important}
   <div class="top-right"><button class="btn btn-outline btn-sm" id="scan-btn" onclick="runGroqScheduling()">✨ Aria: Scan Notes</button><button class="btn btn-primary btn-sm" onclick="openAddModal()">+ Add Vendor</button></div>
 </div>
 <div class="section-tabs">
-  <div class="section-tab active" onclick="filterSection('All',this)">All <span class="section-count" id="cnt-all">10</span></div>
-  <div class="section-tab" onclick="filterSection('New',this)">New <span class="section-count" id="cnt-new">3</span></div>
-  <div class="section-tab" onclick="filterSection('Get to!',this)">Get to! <span class="section-count" id="cnt-getto">3</span></div>
-  <div class="section-tab" onclick="filterSection('W-Update',this)">W-Update <span class="section-count" id="cnt-wupdate">2</span></div>
-  <div class="section-tab" onclick="filterSection('M-Update',this)">M-Update <span class="section-count" id="cnt-mupdate">1</span></div>
-  <div class="section-tab" onclick="filterSection('Existing',this)">Existing <span class="section-count" id="cnt-existing">1</span></div>
+  <div class="section-tab active" onclick="filterSection('All',this)">All <span class="section-count" id="cnt-all">0</span></div>
+  <div class="section-tab" onclick="filterSection('New',this)">New <span class="section-count" id="cnt-new">0</span></div>
+  <div class="section-tab" onclick="filterSection('Get to!',this)">Get to! <span class="section-count" id="cnt-getto">0</span></div>
+  <div class="section-tab" onclick="filterSection('W-Update',this)">W-Update <span class="section-count" id="cnt-wupdate">0</span></div>
+  <div class="section-tab" onclick="filterSection('M-Update',this)">M-Update <span class="section-count" id="cnt-mupdate">0</span></div>
+  <div class="section-tab" onclick="filterSection('Existing',this)">Existing <span class="section-count" id="cnt-existing">0</span></div>
 </div>
 <div class="stats-bar">
-  <div class="stat-item"><div class="stat-dot" style="background:var(--blue)"></div><span class="stat-label">Active</span><span class="stat-val" id="s-active">7</span></div>
-  <div class="stat-item"><div class="stat-dot" style="background:var(--red)"></div><span class="stat-label">High Priority</span><span class="stat-val" id="s-high">4</span></div>
-  <div class="stat-item"><div class="stat-dot" style="background:var(--purple)"></div><span class="stat-label">AI Events Detected</span><span class="stat-val" style="color:var(--purple)" id="s-ai">2</span></div>
-  <div class="stat-item"><div class="stat-dot" style="background:var(--amber)"></div><span class="stat-label">Pending</span><span class="stat-val" id="s-pend">3</span></div>
+  <div class="stat-item"><div class="stat-dot" style="background:var(--blue)"></div><span class="stat-label">Active</span><span class="stat-val" id="s-active">0</span></div>
+  <div class="stat-item"><div class="stat-dot" style="background:var(--red)"></div><span class="stat-label">High Priority</span><span class="stat-val" id="s-high">0</span></div>
+  <div class="stat-item"><div class="stat-dot" style="background:var(--purple)"></div><span class="stat-label">AI Events Detected</span><span class="stat-val" style="color:var(--purple)" id="s-ai">0</span></div>
+  <div class="stat-item"><div class="stat-dot" style="background:var(--amber)"></div><span class="stat-label">Pending</span><span class="stat-val" id="s-pend">0</span></div>
 </div>
 <div id="kanban"></div>
 <div class="panel-overlay" id="overlay" onclick="closePanel()"></div>
@@ -226,18 +226,7 @@ body{margin-left:220px !important}
 'use strict';
 const SECTIONS=['New','Get to!','W-Update','M-Update','Existing','Old news'];
 const SEC_COLORS={'New':'#4f7cff','Get to!':'#ef4444','W-Update':'#f59e0b','M-Update':'#a855f7','Existing':'#22c55e','Old news':'#5a6490'};
-let ITW=[
-  {id:'i1',name:'MediCare Direct',section:'New',priority:'High',status:'Active',category:'Healthcare',contact:'Ben Harper',phone:'(312) 555-1010',email:'bh@medicare.com',notes:'Initial meeting went well. Requesting pricing sheet by April 30, 2026. Very interested in our GPO pricing structure.',updated:'Apr 12, 2026',aiDetected:true,aiEvent:{title:'Pricing Sheet Deadline — MediCare Direct',date:'Apr 30, 2026',reason:'Detected: "pricing sheet by April 30"'}},
-  {id:'i2',name:'CloudNet Services',section:'Get to!',priority:'High',status:'Active',category:'IT',contact:'Lisa Park',phone:'(415) 555-2020',email:'lp@cloudnet.com',notes:'Referred by BrightHR. Need to reach out by end of month. Strong IT credentials, potential 7% admin fee.',updated:'Apr 10, 2026',aiDetected:false},
-  {id:'i3',name:'SafeGuard Security',section:'New',priority:'High',status:'Active',category:'Facilities',contact:'James Wong',phone:'(213) 555-3030',email:'jw@safeguard.com',notes:'RFP submitted. Decision expected May 15, 2026. Strong proposal — competitive pricing at 5%.',updated:'Apr 9, 2026',aiDetected:true,aiEvent:{title:'RFP Decision — SafeGuard Security',date:'May 15, 2026',reason:'Detected: "decision expected May 15"'}},
-  {id:'i4',name:'PharmaLink Global',section:'Get to!',priority:'Medium',status:'Active',category:'Healthcare',contact:'Rachel Kim',phone:'(646) 555-4040',email:'rk@pharmalink.com',notes:'Warm lead from conference. Specialty pharma distribution. Admin fee potential: 9%.',updated:'Apr 7, 2026',aiDetected:false},
-  {id:'i5',name:'FlexHR Platform',section:'W-Update',priority:'Medium',status:'Pending',category:'HR Tech',contact:'David Chen',phone:'(408) 555-5050',email:'dc@flexhr.com',notes:'Weekly check-in scheduled. They are reviewing our contract template. Legal team involved.',updated:'Apr 5, 2026',aiDetected:false},
-  {id:'i6',name:'OptiLogistics Co',section:'W-Update',priority:'High',status:'Active',category:'Logistics',contact:'Maria Santos',phone:'(312) 555-6060',email:'ms@optilog.com',notes:'Strong candidate. Monthly updates required. Board approval needed on their end.',updated:'Apr 3, 2026',aiDetected:false},
-  {id:'i7',name:'TechForward Inc',section:'M-Update',priority:'Low',status:'Pending',category:'IT',contact:'Kevin Park',phone:'(512) 555-7070',email:'kp@techforward.com',notes:'Monthly check-in only. Long timeline — Q4 2026 target. Not urgent.',updated:'Mar 28, 2026',aiDetected:false},
-  {id:'i8',name:'BuildRight Facilities',section:'Get to!',priority:'Medium',status:'Active',category:'Facilities',contact:'Sandra Lee',phone:'(713) 555-8080',email:'sl@buildright.com',notes:'Strong facilities management background. Reviewing terms this week.',updated:'Apr 11, 2026',aiDetected:false},
-  {id:'i9',name:'DataVault Systems',section:'Existing',priority:'Low',status:'Active',category:'IT',contact:'Tom Nguyen',phone:'(206) 555-9090',email:'tn@datavault.com',notes:'Existing relationship. Renewal being negotiated. IT team happy with current solution.',updated:'Apr 8, 2026',aiDetected:false},
-  {id:'i10',name:'CareNetwork Health',section:'New',priority:'High',status:'Active',category:'Healthcare',contact:'Amy Zhou',phone:'(617) 555-0000',email:'az@carenetwork.com',notes:'Inbound lead. Major healthcare system, 12% admin fee potential. Initial call next week.',updated:'Apr 14, 2026',aiDetected:false},
-];
+let ITW=[];
 let activeSection='All',selectedRecord=null,editingId=null;
 function getFiltered(){return activeSection==='All'?ITW.filter(x=>x.status!=='Done'&&x.status!=='Remove'&&x.status!=='Fell off'):ITW.filter(x=>x.section===activeSection&&x.status!=='Done'&&x.status!=='Remove'&&x.status!=='Fell off');}
 function filterSection(sec,el){activeSection=sec;document.querySelectorAll('.section-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderKanban();}
