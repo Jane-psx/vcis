@@ -174,11 +174,10 @@ body{margin-left:220px !important}
   </table>
 </div>
 <div class="pagination">
-  <span class="page-info" id="page-info">Showing all entries</span>
+  <span class="page-info" id="page-info">No entries</span>
   <div class="page-btns">
     <button class="page-btn">&#8249;</button>
     <button class="page-btn active">1</button>
-    <button class="page-btn">2</button>
     <button class="page-btn">&#8250;</button>
   </div>
 </div>
@@ -196,27 +195,7 @@ const ACTION_CLASSES = {
   'Note Logged':'ap-note','Score Recalculated':'ap-score',
   'Calendar Event Created':'ap-cal','Delete':'ap-delete','Login':'ap-login','Export':'ap-note',
 };
-const now = new Date(2026,3,20,14,32,0);
-function ts(minsAgo){const d=new Date(now-minsAgo*60000);return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+' '+d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});}
-const LOGS = [
-  {id:'l1',time:ts(8),user:'Jane Doe',action:'Addendum Upload',vendor:'BrightHR Systems',field:'',oldVal:'',newVal:'',triggered:'Human',sessionId:'sess-001',ip:'192.168.1.42',notes:'Addendum file: BrightHR_Addendum_2026.pdf uploaded for AI comparison',aiPrompt:'You are an expert contract analyst...',aiResponse:'{"vendor_name":"BrightHR Systems","addendum_summary":"This addendum extends...'},
-  {id:'l2',time:ts(9),user:'Jane Doe',action:'AI Analysis',vendor:'BrightHR Systems',field:'',oldVal:'',newVal:'',triggered:'AI',notes:'AI comparison generated — 6 changes detected, 3 risks flagged. Confidence: 87%',aiPrompt:'You are an expert contract analyst...',aiResponse:'{"vendor_name":"BrightHR Systems","overall_recommendation":"accept_with_edits"...'},
-  {id:'l3',time:ts(10),user:'Jane Doe',action:'Human Decision',vendor:'BrightHR Systems',field:'expiry',oldVal:'May 5, 2026',newVal:'May 5, 2028',triggered:'Human',notes:'Accepted AI proposal — contract extension approved. Admin fee negotiated to 7.5%.'},
-  {id:'l4',time:ts(10),user:'Jane Doe',action:'Update',vendor:'BrightHR Systems',field:'adminFee',oldVal:'6%',newVal:'7.5%',triggered:'Human',notes:'Custom value entered during addendum review'},
-  {id:'l5',time:ts(10),user:'Jane Doe',action:'Update',vendor:'BrightHR Systems',field:'autoRenew',oldVal:'No',newVal:'Yes',triggered:'Human',notes:'Accepted AI proposed change'},
-  {id:'l6',time:ts(10),user:'Jane Doe',action:'Calendar Event Created',vendor:'BrightHR Systems',field:'',oldVal:'',newVal:'BrightHR Auto-Renew Deadline — Mar 5, 2028',triggered:'AI',notes:'Suggested by AI based on new expiry date'},
-  {id:'l7',time:ts(15),user:'Jane Doe',action:'Score Recalculated',vendor:'BrightHR Systems',field:'priority_score',oldVal:'10',newVal:'5',triggered:'Automation',notes:'Score reduced after contract extension — urgency reduced'},
-  {id:'l8',time:ts(95),user:'Mike Torres',action:'Note Logged',vendor:'Acme Medical Supply',field:'notes',oldVal:'',newVal:'Apr 20: Call — Discussed renewal terms with John Mitchell...',triggered:'Human',notes:'Channel: Call'},
-  {id:'l9',time:ts(180),user:'System',action:'Score Recalculated',vendor:'All Vendors',field:'priority_score',oldVal:'(various)',newVal:'(various)',triggered:'Automation',notes:'Daily 7am recalculation — all 6 vendor scores refreshed'},
-  {id:'l10',time:ts(240),user:'System',action:'Calendar Event Created',vendor:'BrightHR Systems',field:'',oldVal:'',newVal:'URGENT: Contract Expires Soon — May 5, 2026',triggered:'Automation',notes:'Auto-generated: vendor crossed 7-day expiry threshold'},
-  {id:'l11',time:ts(300),user:'Mike Torres',action:'Human Decision',vendor:'TechStart Solutions',field:'expiry',oldVal:'Jun 15, 2026',newVal:'Jun 15, 2026',triggered:'Human',notes:'Previous addendum review — no change to expiry, kept current'},
-  {id:'l12',time:ts(1440),user:'Sara Kim',action:'Import',vendor:'Batch — 6 records',field:'',oldVal:'',newVal:'6 vendors created, 2 ITW, 4 reviews',triggered:'Human',notes:'File: Vendor_Catalogue_Apr2026.xlsm — all sheets found'},
-  {id:'l13',time:ts(1441),user:'System',action:'Score Recalculated',vendor:'All Vendors',field:'priority_score',oldVal:'—',newVal:'Scores assigned on import',triggered:'Automation',notes:'Initial scoring after batch import'},
-  {id:'l14',time:ts(1500),user:'Mike Torres',action:'Update',vendor:'GrowFast Logistics',field:'followUp',oldVal:'Mar 26, 2026',newVal:'May 10, 2026',triggered:'Human',notes:'Follow-up rescheduled after call'},
-  {id:'l15',time:ts(1560),user:'System',action:'Calendar Event Created',vendor:'NovaCo Facilities',field:'',oldVal:'',newVal:'Stale Record Alert — expired Dec 31',triggered:'Automation',notes:'Auto-flagged: expired 1yr+ ago with no recent communication'},
-  {id:'l16',time:ts(2880),user:'Jane Doe',action:'Login',vendor:'—',field:'',oldVal:'',newVal:'',triggered:'Human',notes:'Logged in from IP 192.168.1.42'},
-  {id:'l17',time:ts(2881),user:'Jane Doe',action:'Export',vendor:'Vendor Database',field:'',oldVal:'',newVal:'6 records exported',triggered:'Human',notes:'Exported filtered vendor list as .xlsx'},
-];
+const LOGS = [];
 let expandedId=null;
 function renderLog(){
   const q=document.getElementById('search').value.toLowerCase();
@@ -233,8 +212,13 @@ function renderLog(){
     return true;
   });
   document.getElementById('filter-count').textContent=hasFilter?filtered.length+' result'+(filtered.length!==1?'s':''):'';
-  document.getElementById('page-info').textContent='Showing 1–'+filtered.length+' of '+LOGS.length+' entries';
+  document.getElementById('page-info').textContent=filtered.length===0?'No entries':'Showing 1–'+filtered.length+' of '+LOGS.length+' entries';
   const tbody=document.getElementById('tbody');tbody.innerHTML='';
+  if(filtered.length===0){
+    const tr=document.createElement('tr');
+    const td=document.createElement('td');td.colSpan=9;td.style.cssText='text-align:center;padding:20px;color:var(--muted2);font-size:12px';td.textContent='No audit log entries yet. Actions will appear here as records are created, updated, or imported.';
+    tr.appendChild(td);tbody.appendChild(tr);return;
+  }
   filtered.forEach(l=>{
     const u=USERS[l.user]||{initials:'??',color:'#5a6490',role:'Unknown'};
     const ac=ACTION_CLASSES[l.action]||'ap-note';
